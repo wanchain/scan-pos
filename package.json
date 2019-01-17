@@ -1,0 +1,13 @@
+{
+  "name": "scanPos",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "molin",
+  "license": "MIT",
+  "dependencies": {
+    "bitcoin-core": "^2.0.0",
+    "ko-sleep": "^1.0.3",
+    "node-xlsx": "^0.12.1",
+    "web3": "^1.0.0-beta.37"
+  }
+}

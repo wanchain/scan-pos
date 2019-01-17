@@ -1,0 +1,28 @@
+{
+  "url": {
+    "wan": {
+      "testnet": "http://localhost:8545",
+      "mainnet": "http://localhost:8545"
+    },
+    "eth": {
+      "testnet": "http://localhost:18545",
+      "mainnet": "http://localhost:18545"
+    },
+    "btc": {
+      "testnet": "localhost:18332",
+      "mainnet": "localhost:8332"
+    }
+  },
+  "nodes": {
+    "btc": {
+      "testnet": [
+        "localhost:18332",
+        "localhost:18332"
+      ],
+      "mainnet": [
+        "localhost:8332",
+        "localhost:8332"
+      ]
+    }
+  }
+}
