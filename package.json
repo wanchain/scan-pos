@@ -8,6 +8,7 @@
     "bitcoin-core": "^2.0.0",
     "ko-sleep": "^1.0.3",
     "node-xlsx": "^0.12.1",
+    "promisefy-util": "^1.2.0",
     "web3": "^0.20"
   }
 }
