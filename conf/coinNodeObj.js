@@ -1,4 +1,5 @@
 const Web3 = require('web3');
+const web3ext = require('util/web3ext')
 const fs = require("fs");
 const config = require('conf/config');
 const BtcClient = require('bitcoin-core');
@@ -29,6 +30,7 @@ class CoinNodeObj {
         let ipPort = this.nodeUrl.split(':');
         this.client = this._getBtcClient(ipPort);
       }
+      web3ext.extend(this.client)
     } catch (error) {
       logger.error(error);
     }
