@@ -13,7 +13,7 @@ async function mainLoop() {
 
   let addrCount = []
 
-  let ret = await web3.eth.getBlockNumber()
+  let ret =  web3.eth.blockNumber
 
   for (let i = 0; i < ret; i++) {
     block = await web3.eth.getBlock(ret - i)
@@ -30,7 +30,7 @@ async function mainLoop() {
   let timeOld = 0
 
   while (true) {
-    let retNew = await web3.eth.getBlockNumber()
+    let retNew =  web3.eth.blockNumber
     if (retNew > ret) {
       for (let i = ret; i < retNew; i++) {
         block = await web3.eth.getBlock(i)
