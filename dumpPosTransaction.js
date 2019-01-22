@@ -32,6 +32,8 @@ async function mainLoop() {
 
   ret = ret > endBlock ? endBlock : ret
 
+  let count = 0
+
   for (let i = beginBlock; i < ret; i++) {
     block = await web3.eth.getBlock(i)
     if (block.transactions != undefined && block.transactions.length > 0) {
@@ -41,6 +43,9 @@ async function mainLoop() {
         tx.input = tx.input.length.toString()
         txs[txs.length] = tx
         console.log("tx:" + m)
+        if (count++ % 100 == 0) {
+          await sleep(1000)
+        }
       }
     }
     console.log("block:" + i)
