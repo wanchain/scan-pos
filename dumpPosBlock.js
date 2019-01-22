@@ -32,13 +32,15 @@ async function mainLoop() {
 
   ret = ret > endBlock ? endBlock : ret
 
+  let m = 0
   for (let i = beginBlock; i < ret; i++) {
     block = await web3.eth.getBlock(i)
-
-    blocks[i] = block
-    blocks[i].logsBloom = blocks[i].logsBloom.length.toString()
-    blocks[i].extraData = blocks[i].extraData.length.toString()
+    blocks[m] = block
+    blocks[m].logsBloom = blocks[m].logsBloom.length.toString()
+    blocks[m].extraData = blocks[m].extraData.length.toString()
+    blocks[m].transactions = blocks[m].transactions.length.toString()
     console.log(i)
+    m++;
   }
 
   var xls = json2xls(blocks);
