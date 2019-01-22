@@ -35,10 +35,11 @@ async function mainLoop() {
   let m = 0
   for (let i = beginBlock; i < ret; i++) {
     block = await web3.eth.getBlock(i)
-    blocks[m] = block
-    blocks[m].logsBloom = blocks[m].logsBloom.length.toString()
-    blocks[m].extraData = blocks[m].extraData.length.toString()
-    blocks[m].transactions = blocks[m].transactions.length.toString()
+    block.logsBloom = block.logsBloom.length
+    block.extraData = block.extraData.length
+    block.transactions = block.transactions.length
+
+    blocks.push(block)
     console.log(i)
     m++;
   }
