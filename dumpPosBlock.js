@@ -42,6 +42,10 @@ async function mainLoop() {
     blocks.push(block)
     console.log(i)
     m++;
+
+    if (m % 100 == 0) {
+      await sleep(1000);
+    }
   }
 
   var xls = json2xls(blocks);
