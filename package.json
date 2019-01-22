@@ -6,8 +6,10 @@
   "license": "MIT",
   "dependencies": {
     "bitcoin-core": "^2.0.0",
+    "json2xls": "^0.1.2",
     "ko-sleep": "^1.0.3",
     "node-xlsx": "^0.12.1",
+    "optimist": "^0.6.1",
     "promisefy-util": "^1.2.0",
     "web3": "^0.20"
   }
