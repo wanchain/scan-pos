@@ -17,62 +17,52 @@ let log = console
 
 let web3Instance = new CoinNodeObj(log, 'wan');
 
-mainLoop();
 
+mainLoopAsync()
 
-async function mainLoop() {
+async function getBlock(i) {
+  block = await web3.eth.getBlock(i)
+  block.logsBloom = block.logsBloom.length
+  block.extraData = block.extraData.length
+  block.transactions = block.transactions.length
+
+  let epID = block.difficulty.div(web3.toBigNumber('0x100000000')).floor(0)
+  let epID000 = epID.mul(web3.toBigNumber('0x100000000'))
+
+  let slotID = block.difficulty.minus(epID000).div(web3.toBigNumber(256)).floor(0)
+  block.epochID = epID.toString()
+  block.slotID = slotID.toString()
+  return block
+}
+
+async function mainLoopAsync() {
   log.info("\nMain loop begins...Wait");
   web3 = web3Instance.getClient();
-
-  let ret =  web3.eth.blockNumber
-
-  let blocks = []
-
+  let ret = web3.eth.blockNumber
   console.log("Total blocks: " + ret.toString())
-
   ret = ret > endBlock ? endBlock : ret
 
-  if (ret < 1) {
-    return
-  } 
 
-  block0 = await web3.eth.getBlock(1)
-  let gensisTime = block0.timestamp
-  console.log(gensisTime)
-
-  let m = 0
+  let pros = [];
+  let blocks = [];
   for (let i = beginBlock; i < ret; i++) {
-    block = await web3.eth.getBlock(i)
-    block.logsBloom = block.logsBloom.length
-    block.extraData = block.extraData.length
-    block.transactions = block.transactions.length
-    
-    let epID = block.difficulty.div(web3.toBigNumber('0x100000000')).floor(0)
-    let epID000 = epID.mul(web3.toBigNumber('0x100000000'))
+    pros.push(new Promise(async (resolve) => {
+      console.log("block: " + i + " started")
+      let block = await getBlock(i);
+      blocks[i - beginBlock] = block;
+      console.log("block: " + i + " finined")
+      resolve();
+    }))
 
-    let slotID = block.difficulty.minus(epID000).div(web3.toBigNumber(256)).floor(0)
-    block.epochID = epID.toString()
-    block.slotID = slotID.toString()
-
-    // timeUnix = Date.now()/1000
-    // slotTime = 3
-    // slotCount = 100
-    // epochTimespan = Number( slotTime * slotCount )
-    // epochIdTime = Number((timeUnix - gensisTime) / epochTimespan)
-    // slotIdTime = Number((timeUnix - gensisTime) / slotTime % slotCount)
-
-    // block.epochIDFromTime = epochIdTime
-    // block.slotIDFromTime = slotIdTime
-
-    blocks.push(block)
-    console.log(i)
-    m++;
-
-    if (m % 100 == 0) {
-      await sleep(1000);
+    if (i%100 == 0) {
+      await sleep(1000)
     }
   }
 
+  await Promise.all(pros)
+
   var xls = json2xls(blocks);
   fs.writeFileSync('blocks.xlsx', xls, 'binary');
+
+  console.log("all finish")
 }
