@@ -52,5 +52,5 @@ async function mainLoop() {
   }
 
   var xls = json2xls(txs);
-  fs.writeFileSync('tranactions.xlsx', xls, 'binary');
+  fs.writeFileSync('transactions.xlsx', xls, 'binary');
 }
