@@ -4,6 +4,10 @@
       "testnet": "http://localhost:8545",
       "mainnet": "http://localhost:8545"
     },
+    "wanipc": {
+      "testnet": "ipc:/home/lzhang/.wanchain/gwan.ipc",
+      "mainnet": "ipc:/home/lzhang/.wanchain/gwan.ipc"
+    },
     "eth": {
       "testnet": "http://localhost:18545",
       "mainnet": "http://localhost:18545"

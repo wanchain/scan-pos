@@ -5,7 +5,7 @@ const config = require('conf/config');
 const BtcClient = require('bitcoin-core');
 const path = require('path');
 let coinNodeConfig = require('conf/coinNodeConfig.json');
-
+const net = require('net')
 const btcUser = process.env.BTC_USER;
 const btcPassword = process.env.BTC_PWD;
 
@@ -26,6 +26,8 @@ class CoinNodeObj {
 
       if (this.nodeUrl.includes('http')) {
         this.client = new Web3(new Web3.providers.HttpProvider(this.nodeUrl));
+      }else if (this.nodeUrl.includes('ipc:')) {
+          this.client = new Web3(new Web3.providers.IpcProvider(this.nodeUrl.slice(4), net));
       } else {
         let ipPort = this.nodeUrl.split(':');
         this.client = this._getBtcClient(ipPort);
