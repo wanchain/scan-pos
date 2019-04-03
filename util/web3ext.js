@@ -18,5 +18,16 @@ module.exports = {
       properties:
         [],
     });
+
+    // txpool
+    web3._extend({
+      property: 'txpool',
+      methods: [
+        insertMethod('status', 'txpool_status', 0, null, null)
+      ],
+      properties:
+          [
+          ]
+    });
   },
 };

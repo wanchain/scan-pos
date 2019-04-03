@@ -1,9 +1,8 @@
 const CoinNodeObj = require('conf/coinNodeObj.js')
-//const date = require('date')
 const pu = require("promisefy-util")
 let log = console
 
-let web3Instance = new CoinNodeObj(log, 'wan');
+let web3Instance = new CoinNodeObj(log, 'wanipc');
 
 const rbScAddr = "0x0000000000000000000000000000000000000262";
 const slotScAddr = "0x0000000000000000000000000000000000000258";
@@ -18,7 +17,7 @@ async function statistics() {
 
   let addrCount = []
 
-  let ret =  web3.eth.blockNumber
+  let ret =  await pu.promisefy(web3.eth.getBlockNumber, [], web3.eth)
   if(process.argv.length >2) {
     ret = process.argv[2]
   }
