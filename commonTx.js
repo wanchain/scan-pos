@@ -1,12 +1,12 @@
 'use strict'
 
-const CoinNodeObj = require('conf/coinNodeObj.js')
+let CoinNodeObj = require('conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 let log = console
 
 let web3Instance = new CoinNodeObj(log, 'wanipc');
 let web3 = web3Instance.getClient()
-const from = "0xcf696d8eea08a311780fb89b20d4f0895198a489"
+const from = "0x23Fc2eDa99667fD3df3CAa7cE7e798d94Eec06eb"
 const to = "0x435b316A70CdB8143d56B3967Aacdb6392FD6125"
 let lastBlock = 0
 main();
@@ -25,19 +25,24 @@ async function main() {
     checkBlock()
     try {
       let txpoolStatus = await pu.promisefy(web3.txpool.status,[], web3.txpool)
-      if(txpoolStatus.pending > 10000){
-        await pu.sleep(1000)
+      let pendingNumber = Number(txpoolStatus.pending)
+      log.log("pending: ", pendingNumber)
+      if(pendingNumber > 80000){
+        //await pu.sleep(1000)
         continue
       }
     }catch(err){
       log.error("web3.txpool.status: ",err)
     }
 
-    for(let i=0; i<4000; i++) {
-      pu.promisefy(web3.eth.sendTransaction, [{from:from, to:to, value: 100}], web3.eth)
+    let rs=[];
+    for(let i=0; i<3000; i++) {
+      let r = pu.promisefy(web3.eth.sendTransaction, [{from:from, to:to, value: 100}], web3.eth)
+      rs.push(r)
     }
-    await pu.sleep(1000)
-    log.log("send 4000 txs")
+    await Promise.all(rs)
+    //await pu.sleep(1000)
+    log.log("send 3000 txs")
   }
 
   console.log("done.")
