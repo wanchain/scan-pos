@@ -5,8 +5,8 @@
       "mainnet": "http://localhost:8545"
     },
     "wanipc": {
-      "testnet": "ipc:/home/lzhang/.wanchain/pluto/gwan.ipc",
-      "mainnet": "ipc:/home/lzhang/.wanchain/pluto/gwan.ipc"
+      "testnet": "ipc:/Users/molin/perfTest/node2/gwan.ipc",
+      "mainnet": "ipc:/Users/molin/perfTest/node2/gwan.ipc"
     },
     "eth": {
       "testnet": "http://localhost:18545",
