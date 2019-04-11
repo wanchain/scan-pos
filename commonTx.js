@@ -22,7 +22,7 @@ if (!true) {
   privateKeyJsonString = ""
 }
 
-var privateKey = JSON.parse(privateKeyJsonString)
+var privateKey = Buffer.from(JSON.parse(privateKeyJsonString).data);
 
 
 let gGasLimit = 22000;
