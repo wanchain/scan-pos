@@ -8,7 +8,6 @@ module.exports = {
       return new web3._extend.Property({ name, getter, outputFormatter });
     }
 
-    // eth
     web3._extend({
       property: 'eth',
       methods:
@@ -19,7 +18,16 @@ module.exports = {
         [],
     });
 
-    // txpool
+    web3._extend({
+      property: 'personal',
+      methods:
+          [
+            insertMethod('showPublicKey', 'personal_showPublicKey', 2, [null,null], null)
+          ],
+      properties:
+          [],
+    });
+
     web3._extend({
       property: 'txpool',
       methods: [

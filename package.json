@@ -5,6 +5,7 @@
   "author": "molin",
   "license": "MIT",
   "dependencies": {
+    "bignumber.js": "^8.1.1",
     "bitcoin-core": "^2.0.0",
     "json2xls": "^0.1.2",
     "ko-sleep": "^1.0.3",
