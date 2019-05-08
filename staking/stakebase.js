@@ -130,7 +130,7 @@ async function sendStakeTransaction(txValue, txPayload) {
         value: web3.toWei(txValue),
         data: txPayload,
         gas: 200000,
-        gasprice: '0x' + (20000000000).toString(16)
+        gasprice: '0x' + (200000000000).toString(16)
     }], web3.eth);
     return txhash;
 }
