@@ -9,7 +9,7 @@ const assert = require('assert');
 const skb = require('./stakebase.js')
 
 
-describe('stakeAppend test', async ()=> {
+describe('partnerIn test', async ()=> {
     let newAddr
     before("", async () => {
         await skb.Init()
@@ -32,42 +32,54 @@ describe('stakeAppend test', async ()=> {
         let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "stakein failed")
     })
-    it("T0 Normal stakeAppend", async ()=>{
+    it("T0 Normal partnerIn", async ()=>{
         // append validator
         let tranValue = 93
-        let payload = skb.coinContract.stakeAppend.getData(newAddr)
+        let payload = skb.coinContract.partnerIn.getData(newAddr, true)
         console.log("payload: ", payload)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
-        log.info("stakein tx:", txhash)
+        log.info("partnerIn tx:", txhash)
         let status = await skb.checkTxResult(txhash)
-        assert(status == '0x1', "stakeAppend failed")
+        assert(status == '0x1', "partnerIn failed")
     })
-    it("T1 invalidAddr stakeAppend", async ()=>{
+    it("T1 invalidAddr partnerIn", async ()=>{
         // append validator
         let tranValue = 93
-        let payload = skb.coinContract.stakeAppend.getData("0x9988")
+        let payload = skb.coinContract.partnerIn.getData("0x9988", true)
         payload = payload.slice(0,16)
         console.log("payload: ", payload)
         try {
             let txhash = await skb.sendStakeTransaction(tranValue, payload)
-            log.info("stakeAppend tx:", txhash)
-            assert(false, "invalidAddr stakeAppend failed")
+            log.info("partnerIn tx:", txhash)
+            assert(false, "invalidAddr partnerIn failed")
         }catch(err){
             console.log(err.toString())
-            assert(err.toString().indexOf('Error: stakeAppend verify failed') == 0 , "invalidAddr stakeAppend should failed")
+            assert(err.toString().indexOf('Error: partnerIn verify failed') == 0 , "invalidAddr partnerIn should failed")
         }
     })
-    it("T2 none-exist address stakeAppend", async ()=>{
+    it("T2 none-exist address partnerIn", async ()=>{
         // append validator
         let tranValue = 93
-        let payload = skb.coinContract.stakeAppend.getData("0x90000000000000000000000000000000000000d2")
+        let payload = skb.coinContract.partnerIn.getData("0x90000000000000000000000000000000000000d2", true)
         console.log("payload: ", payload)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
-        log.info("stakein tx:", txhash)
+        log.info("partnerIn tx:", txhash)
         let status = await skb.checkTxResult(txhash)
-        assert(status == '0x0', "none-exist address stakeAppend failed")
+        assert(status == '0x0', "none-exist address partnerIn failed")
+    })
+    ////////////////////
+    it("T3 more than 5 partnerIn", async ()=>{
+        // append validator
+        let tranValue = 93
+        let payload = skb.coinContract.partnerIn.getData("0x90000000000000000000000000000000000000d2")
+        console.log("payload: ", payload)
+        let txhash = await skb.sendStakeTransaction(tranValue, payload)
+
+        log.info("partnerIn tx:", txhash)
+        let status = await skb.checkTxResult(txhash)
+        assert(status == '0x0', "none-exist address partnerIn failed")
     })
     after(async ()=>{
         log.info("====end====")
