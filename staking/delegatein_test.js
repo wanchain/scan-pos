@@ -67,7 +67,7 @@ describe('delegateIn test', async ()=> {
         let tranValue = 140
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
-        log.info("stakein tx:", txhash)
+        log.info("delegateIn tx:", txhash)
         let status = await skb.checkTxResult(txhash)
         assert(status == '0x0', "none-exist delegateIn should fail")
 

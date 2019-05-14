@@ -49,6 +49,14 @@ describe('stakein test', ()=> {
         log.info("stakein tx:", txhash)
         let status = await checkTxResult(txhash)
         assert(status == '0x1', "stakein failed")
+
+        let staker = await skb.getStakeInfobyAddr(newAddr);
+        console.log(staker)
+        assert(staker.LockEpochs == lockTime, "failed stakein in")
+        assert(staker.NextLockEpochs == lockTime, "failed stakein in")
+        assert(staker.StakeAmount.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed stakein in")
+        assert(staker.Amount.cmp(web3.toWei(web3.toBigNumber(tranValue)))==0, "failed stakein in")
+
     })
     it("T1 bad secpub when stakein", async ()=>{
         let newAddr = await skb.newAccount();
@@ -276,7 +284,7 @@ describe('stakein test', ()=> {
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
         let status = await checkTxResult(txhash)
-        assert(status == '0x0', "value<100000&&feeRate!=100 stakein failed")
+        assert(status == '0x1', "value<100000&&feeRate!=100 stakein need success, but will not work.")
     })
     it("T12 value<100000&&feeRate==100 stakein", async ()=>{
         let newAddr = await skb.newAccount();

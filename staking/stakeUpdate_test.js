@@ -120,6 +120,16 @@ describe('stakeUpdate test', async ()=> {
         let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "lockTime==90 stakeUpdate failed")
     })
+    it("T25  lockTime == 0 stakeUpdate", async ()=>{
+        let payload = skb.coinContract.stakeUpdate.getData(newAddr, 0)
+        console.log("payload: ", payload)
+        let txhash = await skb.sendStakeTransaction(0, payload)
+
+
+        log.info("stakeUpdate tx:", txhash)
+        let status = await skb.checkTxResult(txhash)
+        assert(status == '0x1', "lockTime == 0 stakeUpdate failed.")
+    })
 
 
     after(async ()=>{

@@ -127,7 +127,7 @@ async function sendStakeTransaction(txValue, txPayload) {
     let txhash = await pu.promisefy(web3.eth.sendTransaction, [{
         from: _coinbase,
         to: cscContractAddr,
-        value: web3.toWei(txValue),
+        value: '0x'+web3.toWei(web3.toBigNumber(txValue)).toString(16),
         data: txPayload,
         gas: 200000,
         gasprice: '0x' + (200000000000).toString(16)
@@ -148,6 +148,47 @@ async function waitReceipt(txhash) {
         }
     }
     return null
+}
+
+function stakerConver(staker) {
+    staker.Amount = web3.toBigNumber(staker.Amount)
+    staker.StakeAmount = web3.toBigNumber(staker.StakeAmount)
+    for(let i=0; i<staker.Partners.length; i++) {
+        staker.Partners[i].Amount = web3.toBigNumber(staker.Partners[i].Amount)
+        staker.Partners[i].StakeAmount = web3.toBigNumber(staker.Partners[i].StakeAmount)
+    }
+    for(let i=0; i<staker.Clients.length; i++) {
+        staker.Clients[i].Amount = web3.toBigNumber(staker.Clients[i].Amount)
+        staker.Clients[i].StakeAmount = web3.toBigNumber(staker.Clients[i].StakeAmount)
+    }
+}
+async function getStakeInfobyAddr(newAddr) {
+    let cur = await pu.promisefy(web3.eth.getBlockNumber, [], web3.eth)
+    let stakers = await pu.promisefy(web3.pos.getStakerInfo,[cur], web3.pos)
+    console.log(stakers)
+    for(let i=0; i<stakers.length; i++) {
+        if(newAddr == stakers[i].Address) {
+            stakerConver(stakers[i])
+            return stakers[i]
+        }
+    }
+    return null
+}
+async function getEpochStakerInfo(epochID, addr) {
+    let staker = await pu.promisefy(web3.pos.getEpochStakerInfo,[epochID, addr], web3.pos)
+    let stakers = await pu.promisefy(web3.pos.getEpochStakerAll,[epochID], web3.pos)
+    for(let i=0; i<stakers.length; i++) {
+        if(satkers[i].Address == staker.Address){
+            assert(satkers[i].Address == staker.Address, "getEpochStakerInfo failed")
+            assert(satkers[i].Amount == staker.Amount, "getEpochStakerInfo failed")
+            assert(satkers[i].StakeAmount == staker.StakeAmount, "getEpochStakerInfo failed")
+        }
+    }
+    stakerConver(staker)
+    return staker
+}
+function getWeight(epoch){
+    return 960+6*epoch
 }
 async function newAccount() {
     let addr = await pu.promisefy(web3.personal.newAccount, [passwd], web3.personal)
@@ -181,4 +222,7 @@ module.exports.coinContract = coinContract
 module.exports.passwd = passwd
 module.exports.checkTxResult = checkTxResult
 
+module.exports.getEpochStakerInfo = getEpochStakerInfo
+module.exports.getStakeInfobyAddr = getStakeInfobyAddr
+module.exports.getWeight = getWeight
 module.exports.newAccount = newAccount
