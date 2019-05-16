@@ -13,12 +13,7 @@ let passwd = "wanglu"
 
 
 
-async function checkTxResult(txhash) {
-    let rec = await skb.waitReceipt(txhash)
-    //log.info("tx ",txhash, "receipt: ", rec)
-    assert(rec != null, "Can't get receipt of "+txhash)
-    return rec.status
-}
+
 
 
 describe('stakein test', ()=> {
@@ -47,7 +42,7 @@ describe('stakein test', ()=> {
         log.info("tranValue:",tranValue)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "stakein failed")
 
         let staker = await skb.getStakeInfobyAddr(newAddr);
@@ -134,7 +129,7 @@ describe('stakein test', ()=> {
         let tranValue = 100000
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "feeRate=100 when stakein failed")
     })
     it("T4 feeRate=0 when stakein", async ()=>{
@@ -157,7 +152,7 @@ describe('stakein test', ()=> {
         let tranValue = 100000
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "feeRate=0 when stakein failed")
     })
     it("T5 feeRate<0 when stakein", async ()=>{
@@ -232,12 +227,12 @@ describe('stakein test', ()=> {
         let tranValue = 100000
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "regist first failed")
 
         txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        status = await checkTxResult(txhash)
+        status = await skb.checkTxResult(txhash)
         assert(status == '0x0', "register twice should fail")
     })
     it("T10 value< 10000 stakein", async ()=>{
@@ -260,7 +255,7 @@ describe('stakein test', ()=> {
         let tranValue = 9999
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x0', "value< 10000 stakein failed")
     })
     it("T11 value<100000&&feeRate!=100 stakein", async ()=>{
@@ -283,7 +278,7 @@ describe('stakein test', ()=> {
         let tranValue = 99999
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "value<100000&&feeRate!=100 stakein need success, but will not work.")
     })
     it("T12 value<100000&&feeRate==100 stakein", async ()=>{
@@ -306,7 +301,7 @@ describe('stakein test', ()=> {
         let tranValue = 99999
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "value<100000&&feeRate=100 stakein failed")
     })
     it("T13 value<10000&&feeRate==100 stakein", async ()=>{
@@ -329,7 +324,7 @@ describe('stakein test', ()=> {
         let tranValue = 9999
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x0', "value<100000&&feeRate=100 stakein failed")
     })
 
@@ -354,7 +349,7 @@ describe('stakein test', ()=> {
         let tranValue = 99999
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "lockTime==7 stakein failed")
     })
 
@@ -378,7 +373,7 @@ describe('stakein test', ()=> {
         let tranValue = 99999
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
         log.info("stakein tx:", txhash)
-        let status = await checkTxResult(txhash)
+        let status = await skb.checkTxResult(txhash)
         assert(status == '0x1', "lockTime==90 stakein failed")
     })
 
@@ -433,6 +428,59 @@ describe('stakein test', ()=> {
             assert(false, "lockTime==91 stakein should except")
         }catch(err){
             assert(err.toString() == 'Error: stakein verify failed', "lockTime==91 stakein failed")
+        }
+    })
+    it("TCP Normal stakein, check probability", async ()=>{
+        async function stakeInOne(t) {
+            let newAddr = await skb.newAccount();
+            log.info("newAddr: ", newAddr)
+            let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
+            let secpub = pubs[0]
+            let g1pub = pubs[1]
+            let contractDef = web3.eth.contract(skb.cscDefinition);
+            let cscContractAddr = "0x00000000000000000000000000000000000000d2";
+            let coinContract = contractDef.at(cscContractAddr);
+            let payload = coinContract.stakeIn.getData(secpub, g1pub, t.lockTime, t.feeRate)
+            let txhash = await skb.sendStakeTransaction(t.tranValue, payload)
+            let status = await skb.checkTxResult(txhash)
+            assert(status == t.status, "stakein failed")
+            if(t.status == '0x0') return
+            log.info(2)
+            let staker = await skb.getStakeInfobyAddr(newAddr);
+            //console.log(staker)
+            assert(staker.LockEpochs == t.lockTime, "failed stakein in")
+            assert(staker.NextLockEpochs == t.lockTime, "failed stakein in")
+            assert(staker.StakeAmount.cmp(web3.toWei(web3.toBigNumber(t.tranValue).mul(skb.getWeight(t.lockTime))))==0, "failed stakein in")
+            assert(staker.Amount.cmp(web3.toWei(web3.toBigNumber(t.tranValue)))==0, "failed stakein in")
+            log.info(3)
+            console.log("typeof staker.StakingEpoch", typeof(staker.StakingEpoch))
+
+            let epb = await skb.getEpochStakerInfo(Number(staker.StakingEpoch), newAddr)
+            console.log(epb)
+            log.info(4)
+
+            try {
+                let epe = await skb.getEpochStakerInfo(Number(staker.StakingEpoch)+t.lockTime, newAddr)
+                console.log(epe)
+                assert(false, "last epoch, the probability shuold be empty")
+            }catch{
+            }
+        }
+        let ts = [
+            [7, 100, 12000,'0x1'],
+            [9, 100, 12000,'0x1'],
+            [16, 100, 32000,'0x1'],
+            [27, 100, 22000,'0x1'],
+            [27, 10, 2000,'0x0'],
+            [90, 100, 12000,'0x1']
+        ]
+        for(let i=0; i<ts.length; i++){
+            let t = {}
+            t.lockTime = ts[i][0]
+            t.feeRate = ts[i][1]
+            t.tranValue = ts[i][2]
+            t.status = ts[i][3]
+            await stakeInOne(t)
         }
     })
     after(async ()=>{

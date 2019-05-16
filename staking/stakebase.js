@@ -162,10 +162,11 @@ function stakerConver(staker) {
         staker.Clients[i].StakeAmount = web3.toBigNumber(staker.Clients[i].StakeAmount)
     }
 }
+
 async function getStakeInfobyAddr(newAddr) {
     let cur = await pu.promisefy(web3.eth.getBlockNumber, [], web3.eth)
     let stakers = await pu.promisefy(web3.pos.getStakerInfo,[cur], web3.pos)
-    console.log(stakers)
+    //console.log(stakers)
     for(let i=0; i<stakers.length; i++) {
         if(newAddr == stakers[i].Address) {
             stakerConver(stakers[i])
@@ -175,16 +176,19 @@ async function getStakeInfobyAddr(newAddr) {
     return null
 }
 async function getEpochStakerInfo(epochID, addr) {
+    console.log("getEpochStakerInfo: ", epochID, addr)
     let staker = await pu.promisefy(web3.pos.getEpochStakerInfo,[epochID, addr], web3.pos)
-    let stakers = await pu.promisefy(web3.pos.getEpochStakerAll,[epochID], web3.pos)
+    //console.log(staker)
+    let stakers = await pu.promisefy(web3.pos.getEpochStakerInfoAll,[epochID], web3.pos)
+    //console.log(stakers)
+
     for(let i=0; i<stakers.length; i++) {
-        if(satkers[i].Address == staker.Address){
-            assert(satkers[i].Address == staker.Address, "getEpochStakerInfo failed")
-            assert(satkers[i].Amount == staker.Amount, "getEpochStakerInfo failed")
-            assert(satkers[i].StakeAmount == staker.StakeAmount, "getEpochStakerInfo failed")
+        if(stakers[i].Address == staker.Address){
+            assert(stakers[i].Address == staker.Address, "getEpochStakerInfo failed")
+            assert(stakers[i].Amount == staker.Amount, "getEpochStakerInfo failed")
+            assert(stakers[i].StakeAmount == staker.StakeAmount, "getEpochStakerInfo failed")
         }
     }
-    stakerConver(staker)
     return staker
 }
 function getWeight(epoch){
@@ -225,4 +229,5 @@ module.exports.checkTxResult = checkTxResult
 module.exports.getEpochStakerInfo = getEpochStakerInfo
 module.exports.getStakeInfobyAddr = getStakeInfobyAddr
 module.exports.getWeight = getWeight
+module.exports.minEpoch = 7
 module.exports.newAccount = newAccount
