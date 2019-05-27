@@ -151,30 +151,54 @@ async function waitReceipt(txhash) {
 }
 
 function stakerConver(staker) {
-    staker.Amount = web3.toBigNumber(staker.Amount)
-    staker.StakeAmount = web3.toBigNumber(staker.StakeAmount)
-    for(let i=0; i<staker.Partners.length; i++) {
-        staker.Partners[i].Amount = web3.toBigNumber(staker.Partners[i].Amount)
-        staker.Partners[i].StakeAmount = web3.toBigNumber(staker.Partners[i].StakeAmount)
+    staker.amount = web3.toBigNumber(staker.amount)
+    staker.stakeAmount = web3.toBigNumber(staker.stakeAmount)
+    for(let i=0; i<staker.partners.length; i++) {
+        staker.partners[i].amount = web3.toBigNumber(staker.partners[i].amount)
+        staker.partners[i].stakeAmount = web3.toBigNumber(staker.partners[i].stakeAmount)
     }
-    for(let i=0; i<staker.Clients.length; i++) {
-        staker.Clients[i].Amount = web3.toBigNumber(staker.Clients[i].Amount)
-        staker.Clients[i].StakeAmount = web3.toBigNumber(staker.Clients[i].StakeAmount)
+    for(let i=0; i<staker.clients.length; i++) {
+        staker.clients[i].amount = web3.toBigNumber(staker.clients[i].amount)
+        staker.clients[i].stakeAmount = web3.toBigNumber(staker.clients[i].stakeAmount)
     }
 }
 
 async function getStakeInfobyAddr(newAddr) {
     let cur = await pu.promisefy(web3.eth.getBlockNumber, [], web3.eth)
+    //console.log("cur:", cur)
     let stakers = await pu.promisefy(web3.pos.getStakerInfo,[cur], web3.pos)
-    //console.log(stakers)
+    //console.log("stakers:", stakers)
     for(let i=0; i<stakers.length; i++) {
-        if(newAddr == stakers[i].Address) {
+        if(newAddr == stakers[i].address) {
             stakerConver(stakers[i])
             return stakers[i]
         }
     }
     return null
 }
+
+function getEventHash(eventName, contractAbi) {
+    return web3.sha3(getcommandString(eventName, contractAbi)).toString('hex');
+}
+
+function getcommandString(funcName, contractAbi) {
+    for (var i = 0; i < contractAbi.length; ++i) {
+        let item = contractAbi[i];
+        if (item.name == funcName) {
+            let command = funcName + '(';
+            for (var j = 0; j < item.inputs.length; ++j) {
+                if (j != 0) {
+                    command = command + ',';
+                }
+                command = command + item.inputs[j].type;
+            }
+            command = command + ')';
+            return command;
+        }
+    }
+}
+
+
 async function getEpochStakerInfo(epochID, addr) {
     console.log("getEpochStakerInfo: ", epochID, addr)
     let staker = await pu.promisefy(web3.pos.getEpochStakerInfo,[epochID, addr], web3.pos)
@@ -184,9 +208,9 @@ async function getEpochStakerInfo(epochID, addr) {
 
     for(let i=0; i<stakers.length; i++) {
         if(stakers[i].Address == staker.Address){
-            assert(stakers[i].Address == staker.Address, "getEpochStakerInfo failed")
-            assert(stakers[i].Amount == staker.Amount, "getEpochStakerInfo failed")
-            assert(stakers[i].StakeAmount == staker.StakeAmount, "getEpochStakerInfo failed")
+            assert(stakers[i].address == staker.address, "getEpochStakerInfo failed")
+            assert(stakers[i].amount == staker.amount, "getEpochStakerInfo failed")
+            assert(stakers[i].stakeAmount == staker.stakeAmount, "getEpochStakerInfo failed")
         }
     }
     return staker
@@ -213,7 +237,7 @@ async function checkTxResult(txhash) {
     let rec = await waitReceipt(txhash)
     //log.info("tx ",txhash, "receipt: ", rec)
     assert(rec != null, "Can't get receipt of "+txhash)
-    return rec.status
+    return rec
 }
 module.exports.cscDefinition = cscDefinition
 module.exports.waitReceipt = waitReceipt
@@ -230,4 +254,5 @@ module.exports.getEpochStakerInfo = getEpochStakerInfo
 module.exports.getStakeInfobyAddr = getStakeInfobyAddr
 module.exports.getWeight = getWeight
 module.exports.minEpoch = 7
+module.exports.getEventHash = getEventHash
 module.exports.newAccount = newAccount

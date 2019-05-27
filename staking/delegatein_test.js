@@ -8,9 +8,20 @@ let web3 = web3Instance.getClient()
 const assert = require('assert');
 
 const skb = require('./stakebase.js')
-let passwd = "wanglu"
 
+const coder = require('web3/lib/solidity/coder');
 
+function checkDelegateInReceipt(rec, t, newAddr) {
+    assert(rec.logs.length == 1, "delegateIn log failed")
+    assert(rec.logs[0].topics.length === 4, "topic length failed")
+    console.log(rec.logs[0].topics)
+    console.log('0x'+coder.encodeParam("bytes32", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)))
+    assert(rec.logs[0].topics[0] === skb.getEventHash('delegateIn',skb.cscDefinition), "topic  failed")
+    assert(rec.logs[0].topics[1] === '0x'+coder.encodeParam("address", skb.coinbase()), "topic  failed")
+    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
+    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
+
+}
 
 describe('delegateIn test', async ()=> {
     let newAddr
@@ -18,7 +29,7 @@ describe('delegateIn test', async ()=> {
         await skb.Init()
         newAddr = await skb.newAccount();
         log.info("newAddr: ", newAddr)
-        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
+        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
         let secpub = pubs[0]
         let g1pub = pubs[1]
 
@@ -30,9 +41,9 @@ describe('delegateIn test', async ()=> {
         let tranValue = 100000
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
-        log.info("stakein tx:", txhash)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x1', "stakeIn failed")
+        log.info("delegateIn tx:", txhash)
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "delegateIn failed")
     })
     it("T0 value<100 delegateIn", async ()=>{
 
@@ -40,9 +51,9 @@ describe('delegateIn test', async ()=> {
         let tranValue = 99
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
-        log.info("stakein tx:", txhash)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x0', "value<100 delegateIn should fail")
+        log.info("delegateIn tx:", txhash)
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x0', "value<100 delegateIn should fail")
 
     })
 
@@ -68,8 +79,8 @@ describe('delegateIn test', async ()=> {
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
         log.info("delegateIn tx:", txhash)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x0', "none-exist delegateIn should fail")
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x0', "none-exist delegateIn should fail")
 
     })
     it("T3 Normal delegateIn", async ()=>{
@@ -79,8 +90,8 @@ describe('delegateIn test', async ()=> {
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
         log.info("delegateIn tx:", txhash)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x1', "delegateIn failed")
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "delegateIn failed")
     })
     it("T4 second delegatein value<100 delegateIn", async ()=>{
 
@@ -89,8 +100,8 @@ describe('delegateIn test', async ()=> {
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
         log.info("delegateIn tx:", txhash)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x1', "second delegatein value<100 delegateIn should success")
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "second delegatein value<100 delegateIn should success")
     })
     it("T5  delegatein value>5*amount delegateIn", async ()=>{
 
@@ -99,23 +110,23 @@ describe('delegateIn test', async ()=> {
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
         log.info("delegateIn tx:", txhash)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x1', "second delegatein value=4*amount delegateIn should success")
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "second delegatein value=4*amount delegateIn should success")
 
         payload = skb.coinContract.delegateIn.getData(newAddr)
         tranValue = 100000
         txhash = await skb.sendStakeTransaction(tranValue, payload)
 
         log.info("delegateIn tx:", txhash)
-        status = await skb.checkTxResult(txhash)
-        assert(status == '0x0', "second delegatein value>5*amount delegateIn should fail")
+        rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x0', "second delegatein value>5*amount delegateIn should fail")
 
     })
     it("TCP Normal delegateIn, check probability", async ()=>{
         // stakein first
         let newAddr = await skb.newAccount();
         log.info("newAddr: ", newAddr)
-        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
+        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
         let secpub = pubs[0]
         let g1pub = pubs[1]
         let contractDef = web3.eth.contract(skb.cscDefinition);
@@ -127,8 +138,8 @@ describe('delegateIn test', async ()=> {
         let validatorStakeAmount = web3.toBigNumber(web3.toWei(50000)).mul(skb.getWeight(lockTime))
         let payload = coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
-        let status = await skb.checkTxResult(txhash)
-        assert(status == '0x1', "stakein failed")
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "stakein failed")
         let totalAmount = web3.toBigNumber(0)
         let totalStakeAmount = web3.toBigNumber(0)
         async function delegateInOne(t) {
@@ -136,30 +147,32 @@ describe('delegateIn test', async ()=> {
             let txhash = await skb.sendStakeTransaction(t.tranValue, payload)
 
             log.info("delegateIn tx:", txhash)
-            let status = await skb.checkTxResult(txhash)
-            assert(status == t.status, "delegateIn failed")
+            let rec = await skb.checkTxResult(txhash)
+            console.log(rec)
+            assert(rec.status == t.status, "delegateIn failed")
             if(t.status == '0x0') return
+            checkDelegateInReceipt(rec, t, newAddr)
 
             let staker = await skb.getStakeInfobyAddr(newAddr);
             //console.log(staker)
-            assert(staker.LockEpochs == lockTime, "failed stakein in")
-            assert(staker.NextLockEpochs == lockTime, "failed stakein in")
-            assert(staker.StakeAmount.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed stakein in")
-            assert(staker.Amount.cmp(web3.toWei(web3.toBigNumber(tranValue)))==0, "failed stakein in")
+            assert(staker.lockEpochs == lockTime, "failed delegateIn")
+            assert(staker.nextLockEpochs == lockTime, "failed delegateIn")
+            assert(staker.stakeAmount.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed delegateIn")
+            assert(staker.amount.cmp(web3.toWei(web3.toBigNumber(tranValue)))==0, "failed delegateIn")
 
-            assert(staker.Clients.length == 1, "delegatein failed")
-            assert(staker.Clients[0].Address == skb.coinbase(), "delegate failed")
+            assert(staker.clients.length == 1, "delegatein failed")
+            assert(staker.clients[0].address == skb.coinbase(), "delegate failed")
 
             let amount =web3.toWei(web3.toBigNumber(t.tranValue))
             totalAmount = totalAmount.add(amount)
-            console.log(staker.Clients[0].Amount.toString(10))
+            console.log(staker.clients[0].amount.toString(10))
             console.log(totalAmount.toString(10))
-            assert(staker.Clients[0].Amount.cmp(totalAmount)==0, "delegate failed")
+            assert(staker.clients[0].amount.cmp(totalAmount)==0, "delegate failed")
             let stakeAmount =web3.toWei(web3.toBigNumber(t.tranValue)).mul(skb.getWeight(skb.minEpoch))
             totalStakeAmount = totalStakeAmount.add(stakeAmount)
-            assert(staker.Clients[0].StakeAmount.cmp(totalStakeAmount)==0, "delegate failed")
+            assert(staker.clients[0].stakeAmount.cmp(totalStakeAmount)==0, "delegate failed")
 
-            let epb = await skb.getEpochStakerInfo(Number(staker.StakingEpoch), newAddr)
+            let epb = await skb.getEpochStakerInfo(Number(staker.stakingEpoch), newAddr)
             console.log(epb)
             assert(epb.Infors.length == 2,"delegate failed")
             console.log(totalStakeAmount.toString(10))
@@ -169,7 +182,7 @@ describe('delegateIn test', async ()=> {
             let allStakeAmount = validatorStakeAmount.add(totalStakeAmount)
             assert(web3.toBigNumber(epb.TotalProbability).cmp(allStakeAmount)==0,"delegate failed")
             try {
-                let epe = await skb.getEpochStakerInfo(Number(staker.StakingEpoch)+lockTime, newAddr)
+                let epe = await skb.getEpochStakerInfo(Number(staker.stakingEpoch)+lockTime, newAddr)
                 console.log(epe)
                 assert(false, "last epoch, the probability shuold be empty")
             }catch{
@@ -181,7 +194,7 @@ describe('delegateIn test', async ()=> {
             [140,'0x1'],
             [320,'0x1'],
             [420,'0x1'],
-            [20,'0x1'],
+            [99,'0x1'],
             [520,'0x1']
         ]
         for(let i=0; i<ts.length; i++){
