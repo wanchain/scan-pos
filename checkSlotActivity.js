@@ -22,7 +22,8 @@ async function mainLoopAsync() {
   let curEpoch = await pu.promisefy(web3.pos.getEpochID, [], web3.pos);
   console.log("firstEpochId: ", info.firstEpochId);
 
-  console.log('slot activity -----------------------')
+  console.log('epochID', 'sltActivity', 'missEL', 'missRNP')
+
   for (let i = info.firstEpochId; i < curEpoch; i++) {
     let act = await pu.promisefy(web3.pos.getActivity, [i], web3.pos);
     let missEp = 0;
@@ -40,13 +41,6 @@ async function mainLoopAsync() {
     }
     
     console.log(i, act.slActivity, missEp, missRp)
-  }
-
-  console.log('ep / rp activity -----------------------')
-
-  for (let i = info.firstEpochId; i < curEpoch; i++) {
-    let act = await pu.promisefy(web3.pos.getActivity, [i], web3.pos);
-
   }
 
   console.log("all finish")
