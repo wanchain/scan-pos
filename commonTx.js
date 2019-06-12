@@ -12,10 +12,11 @@ let to = ""
 
 // Fill the privateKey's json String
 var privateKeyJsonString = ""
-if (!true) {
-  from = "0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
+if (true) {
+  from = "0x435b316A70CdB8143d56B3967Aacdb6392FD6125";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
   to = "0xcf696d8eea08a311780fb89b20d4f0895198a489"
-  privateKeyJsonString = ""
+  privateKeyJsonString = '{"type":"Buffer","data":"0x5389e1113c92251542c446b287e63c1033313a28d5623219a02ac3d13e1167c4"}'
+  //privateKeyJsonString = "0x5389e1113c92251542c446b287e63c1033313a28d5623219a02ac3d13e1167c4"
 } else {
   from = "0xcf696d8eea08a311780fb89b20d4f0895198a489";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
   to = "0x9cd8230d43464aE97F60BAD6DE9566a064990E55"
@@ -26,7 +27,7 @@ var privateKey = Buffer.from(JSON.parse(privateKeyJsonString).data);
 
 
 let gGasLimit = 22000;
-let gGasPrice = 200000000000; // 200G
+let gGasPrice = 280000000000; // 200G
 
 let log = console
 
@@ -50,24 +51,46 @@ async function checkBlock() {
 
 
 function SignTx() {
+  log.log("1.1.1")
+
   var rawTx = {
     Txtype: 0x01,
     nonce: nonce++,
     gasPrice: gGasPrice,
     gasLimit: gGasLimit,
     to: to,
-    chainId: 6,
+    chainId: 3,
     value: '0x02'
   };
   const tx = new Tx(rawTx);
-
+  log.log("1.1.2")
+console.log("privateKey:", privateKey)
   tx.sign(privateKey);
+  log.log("1.2")
+
   const serializedTx = tx.serialize();
   return "0x" + serializedTx.toString('hex')
 }
 
+
+function jsonTx() {
+  log.log("1.1.1")
+
+  var rawTx = {
+    from: from,
+    Txtype: 0x01,
+    nonce: nonce++,
+    gasPrice: gGasPrice,
+    gasLimit: gGasLimit,
+    to: to,
+    chainId: 3,
+    value: '0x02'
+  };
+  return rawTx
+}
+
 let startTime = new Date()
-let txCount = 6000
+let txCount = 3
 let nonce = null
 async function main() {
   // while(!nonce) {
@@ -84,25 +107,27 @@ async function main() {
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
       log.log(new Date(), "pending: ", pendingNumber)
-      if (pendingNumber > 800000) {
+      if (pendingNumber > 8) {
         await pu.sleep(1000)
         continue
       }
     } catch (err) {
       log.error("web3.txpool.status: ", err)
     }
-
+    log.log("1")
     let rs = [];
     for (let i = 0; i < txCount; i++) {
-      let tx = SignTx()
-      let r = pu.promisefy(web3.eth.sendRawTransaction, [tx], web3.eth);
+      let tx = jsonTx()
+      log.log("1.1")
+      let r = pu.promisefy(web3.personal.sendTransaction, [tx,"wanglu"], web3.personal);
       rs.push(r)
     }
+    log.log("2")
     await Promise.all(rs)
     totalSendTx += txCount
     //await pu.sleep(1000)
     let timePass = new Date() - startTime;
-
+    log.log("3")
     timePass = timePass / 1000
 
     log.log(new Date(), "send ", txCount, " txs, total:", totalSendTx, "tps: ", totalSendTx / timePass)

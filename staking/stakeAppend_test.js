@@ -25,27 +25,28 @@ describe('stakeAppend test', async ()=> {
     before("", async () => {
         await skb.Init()
 
-        newAddr = await skb.newAccount();
-        log.info("newAddr: ", newAddr)
-        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
-        let secpub = pubs[0]
-        let g1pub = pubs[1]
-
-        let lockTime = 7
-        let feeRate = 79
-
-        // add validator
-        let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
-        let tranValue = 100000
-        let txhash = await skb.sendStakeTransaction(tranValue, payload)
-
-        log.info("stakein tx:", txhash)
-        let rec = await skb.checkTxResult(txhash)
-        assert(rec.status == '0x1', "stakein failed")
+        // newAddr = await skb.newAccount();
+        // log.info("newAddr: ", newAddr)
+        // let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
+        // let secpub = pubs[0]
+        // let g1pub = pubs[1]
+        //
+        // let lockTime = 7
+        // let feeRate = 79
+        //
+        // // add validator
+        // let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
+        // let tranValue = 100000
+        // let txhash = await skb.sendStakeTransaction(tranValue, payload)
+        //
+        // log.info("stakein tx:", txhash)
+        // let rec = await skb.checkTxResult(txhash)
+        // assert(rec.status == '0x1', "stakein failed")
     })
     it("T0 Normal stakeAppend", async ()=>{
         // append validator
-        let tranValue = 93
+        let tranValue = 39000
+        let newAddr = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
         let payload = skb.coinContract.stakeAppend.getData(newAddr)
         console.log("payload: ", payload)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)

@@ -25,24 +25,24 @@ describe('stakeUpdate test', async ()=> {
     let newAddr
     before("", async () => {
         await skb.Init()
-        log.info("skb.coinbase(): ", skb.coinbase())
-        newAddr = await skb.newAccount();
-        log.info("newAddr: ", newAddr)
-        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
-        let secpub = pubs[0]
-        let g1pub = pubs[1]
-
-        let lockTime = 7
-        let feeRate = 79
-
-        // add validator
-        let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
-        let tranValue = 100000
-        let txhash = await skb.sendStakeTransaction(tranValue, payload)
-
-        log.info("stakeUpdate tx:", txhash)
-        let rec = await skb.checkTxResult(txhash)
-        assert(rec.status == '0x1', "stakeAppend failed")
+        // log.info("skb.coinbase(): ", skb.coinbase())
+        // newAddr = await skb.newAccount();
+        // log.info("newAddr: ", newAddr)
+        // let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
+        // let secpub = pubs[0]
+        // let g1pub = pubs[1]
+        //
+        // let lockTime = 7
+        // let feeRate = 79
+        //
+        // // add validator
+        // let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
+        // let tranValue = 100000
+        // let txhash = await skb.sendStakeTransaction(tranValue, payload)
+        //
+        // log.info("stakeUpdate tx:", txhash)
+        // let rec = await skb.checkTxResult(txhash)
+        // assert(rec.status == '0x1', "stakeAppend failed")
     })
     it("T0 Normal stakeUpdate", async ()=>{
 
@@ -132,6 +132,7 @@ describe('stakeUpdate test', async ()=> {
         assert(rec.status == '0x1', "lockTime==90 stakeUpdate failed")
     })
     it("T25  lockTime == 0 stakeUpdate", async ()=>{
+        let newAddr = "0xb42e7abfa67b26584ba174387dc874551673a9fa"
         let payload = skb.coinContract.stakeUpdate.getData(newAddr, 0)
         console.log("payload: ", payload)
         let txhash = await skb.sendStakeTransaction(0, payload)

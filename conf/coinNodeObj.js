@@ -1,10 +1,10 @@
 const Web3 = require('web3');
 const web3ext = require('util/web3ext')
 const fs = require("fs");
-const config = require('conf/config');
+const config = require(__dirname +'/config.js');
 const BtcClient = require('bitcoin-core');
 const path = require('path');
-let coinNodeConfig = require('conf/coinNodeConfig.json');
+let coinNodeConfig = require(__dirname +'/coinNodeConfig.json');
 const net = require('net')
 const btcUser = process.env.BTC_USER;
 const btcPassword = process.env.BTC_PWD;

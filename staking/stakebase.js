@@ -120,18 +120,20 @@ const cscDefinition = [
 ]
 
 let contractDef = web3.eth.contract(cscDefinition);
-let cscContractAddr = "0x00000000000000000000000000000000000000d2";
+let cscContractAddr = "0x00000000000000000000000000000000000000d8";
 let coinContract = contractDef.at(cscContractAddr);
 
 async function sendStakeTransaction(txValue, txPayload) {
-    let txhash = await pu.promisefy(web3.eth.sendTransaction, [{
+    console.log("sendStakeTransaction ")
+    let txhash = await pu.promisefy(web3.personal.sendTransaction, [{
         from: _coinbase,
         to: cscContractAddr,
         value: '0x'+web3.toWei(web3.toBigNumber(txValue)).toString(16),
         data: txPayload,
         gas: 200000,
         gasprice: '0x' + (200000000000).toString(16)
-    }], web3.eth);
+    }, passwd], web3.personal);
+    console.log("sendStakeTransaction txhash:", txhash)
     return txhash;
 }
 async function waitReceipt(txhash) {
@@ -222,12 +224,13 @@ async function newAccount() {
     let addr = await pu.promisefy(web3.personal.newAccount, [passwd], web3.personal)
     log.info("newAccount: ", addr)
     // for pos trsaction gas fee
-    let ret = await pu.promisefy(web3.eth.sendTransaction, [{from: _coinbase, to: addr, value: web3.toWei(1)}], web3.eth)
+    let ret = await pu.promisefy(web3.personal.sendTransaction, [{from: _coinbase, to: addr, value: web3.toWei(1)}, passwd], web3.eth)
     log.info("send gasfee:", ret)
     return addr
 }
 async function Init() {
-    _coinbase = await pu.promisefy(web3.eth.getCoinbase, [], web3.eth)
+    //_coinbase_coinbase = await pu.promisefy(web3.eth.getCoinbase, [], web3.eth)
+    _coinbase = "0xbd100cf8286136659a7d63a38a154e28dbf3e0fd"
     console.log("coinbase: ", _coinbase)
 }
 function  coinbase() {
