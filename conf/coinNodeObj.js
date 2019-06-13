@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const web3ext = require('util/web3ext')
+const web3ext = require(__dirname+'/../util/web3ext.js')
 const fs = require("fs");
 const config = require(__dirname +'/config.js');
 const BtcClient = require('bitcoin-core');

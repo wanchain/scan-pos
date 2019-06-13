@@ -29,7 +29,13 @@ module.exports = {
           [
           ]
     });
-
+    // personal
+    web3._extend({
+      property: 'personal',
+      methods: [
+        insertMethod('showPublicKey', 'personal_showPublicKey', 2, null, null)
+      ]
+    });
     //POS
 
     web3._extend({

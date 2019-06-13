@@ -32,7 +32,6 @@ async function main() {
     for(let i=0; i<keyCount; i++) {
         await createOne(i)
     }
-    console.log(pubkeys)
     console.log("==========copy following pubkeys to code ==============")
     for(let i=0; i<keyCount; i++){
         for(let k=0; k<repeat; k++) {
@@ -40,7 +39,7 @@ async function main() {
             if(index >= totalCount) {
                 return
             }
-            console.log("\""+pubkeys[i]+"\"")
+            console.log("\""+pubkeys[i]+"\",")
         }
     }
 }
