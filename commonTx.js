@@ -51,7 +51,7 @@ async function checkBlock() {
 
 
 function SignTx() {
-  log.log("1.1.1")
+  // log.log("1.1.1")
 
   var rawTx = {
     Txtype: 0x01,
@@ -74,7 +74,7 @@ console.log("privateKey:", privateKey)
 
 
 function jsonTx() {
-  log.log("1.1.1")
+  // log.log("1.1.1")
 
   var rawTx = {
     from: from,
@@ -90,7 +90,7 @@ function jsonTx() {
 }
 
 let startTime = new Date()
-let txCount = 3
+let txCount = 10
 let nonce = null
 async function main() {
   // while(!nonce) {
@@ -107,27 +107,27 @@ async function main() {
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
       log.log(new Date(), "pending: ", pendingNumber)
-      if (pendingNumber > 8) {
+      if (pendingNumber > 100) {
         await pu.sleep(1000)
         continue
       }
     } catch (err) {
       log.error("web3.txpool.status: ", err)
     }
-    log.log("1")
+    // log.log("1")
     let rs = [];
     for (let i = 0; i < txCount; i++) {
       let tx = jsonTx()
-      log.log("1.1")
+      // log.log("1.1")
       let r = pu.promisefy(web3.personal.sendTransaction, [tx,"wanglu"], web3.personal);
       rs.push(r)
     }
-    log.log("2")
+    // log.log("2")
     await Promise.all(rs)
     totalSendTx += txCount
     //await pu.sleep(1000)
     let timePass = new Date() - startTime;
-    log.log("3")
+    // log.log("3")
     timePass = timePass / 1000
 
     log.log(new Date(), "send ", txCount, " txs, total:", totalSendTx, "tps: ", totalSendTx / timePass)
