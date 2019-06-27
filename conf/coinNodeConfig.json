@@ -5,7 +5,7 @@
       "mainnet": "http://localhost:8545"
     },
     "wanipc": {
-      "testnet": "ipc:/Users/molin/perfTest/node3/gwan.ipc",
+      "testnet": "ipc:/home/ubuntu/test/n1/gwan.ipc",
       "mainnet": "ipc:/Users/molin/perfTest/node3/gwan.ipc"
     },
     "eth": {

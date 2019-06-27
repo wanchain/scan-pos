@@ -13,16 +13,16 @@ let to = ""
 // Fill the privateKey's json String
 var privateKeyJsonString = ""
 if (!true) {
-  from = "0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
-  to = "0xcf696d8eea08a311780fb89b20d4f0895198a489"
-  privateKeyJsonString = ""
+  to = "0x8e08818Baca5eb05CbC549c2B93476A5f03E88D5";
+  from = "0xA33A2551995FAeF21292235B135EC1aAd74fb2b2";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
+  privateKeyJsonString = {"type":"Buffer","data":"152e96ab620bcaa3c35d640d8def506f26a1687beee028faa77c1e3239017b48"}
 } else {
   from = "0xcf696d8eea08a311780fb89b20d4f0895198a489";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
   to = "0x9cd8230d43464aE97F60BAD6DE9566a064990E55"
   privateKeyJsonString = '{"type":"Buffer","data":[]}'
 }
 
-var privateKey = Buffer.from(JSON.parse(privateKeyJsonString).data);
+var privateKey = Buffer.from("152e96ab620bcaa3c35d640d8def506f26a1687beee028faa77c1e3239017b48",'hex');
 
 
 let gGasLimit = 22000;
@@ -56,7 +56,7 @@ function SignTx() {
     gasPrice: gGasPrice,
     gasLimit: gGasLimit,
     to: to,
-    chainId: 6,
+    chainId: 4,
     value: '0x02'
   };
   const tx = new Tx(rawTx);
@@ -67,7 +67,7 @@ function SignTx() {
 }
 
 let startTime = new Date()
-let txCount = 6000
+let txCount = 1000
 let nonce = null
 async function main() {
   // while(!nonce) {
@@ -84,7 +84,7 @@ async function main() {
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
       log.log(new Date(), "pending: ", pendingNumber)
-      if (pendingNumber > 800000) {
+      if (pendingNumber > 80000) {
         await pu.sleep(1000)
         continue
       }
