@@ -7,23 +7,11 @@ const wanUtil = require('wanchain-util');
 
 var Tx = wanUtil.wanchainTx;
 
-let from = ""
-let to = ""
+let from = "0x7e724e043ac584f196057ef9e6cc834d2e2847b2"
+let to = "0x47589e0858026460cf8fecb7cf9e0f32e4ee179c"
 
-// Fill the privateKey's json String
-var privateKeyJsonString = ""
-if (true) {
-  from = "0x435b316A70CdB8143d56B3967Aacdb6392FD6125";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
-  to = "0xcf696d8eea08a311780fb89b20d4f0895198a489"
-  privateKeyJsonString = '{"type":"Buffer","data":"0x5389e1113c92251542c446b287e63c1033313a28d5623219a02ac3d13e1167c4"}'
-  //privateKeyJsonString = "0x5389e1113c92251542c446b287e63c1033313a28d5623219a02ac3d13e1167c4"
-} else {
-  from = "0xcf696d8eea08a311780fb89b20d4f0895198a489";//"0x9cd8230d43464aE97F60BAD6DE9566a064990E55";//"0xC4F682E30aa722053C52feA538db77e2042F7980"
-  to = "0x9cd8230d43464aE97F60BAD6DE9566a064990E55"
-  privateKeyJsonString = '{"type":"Buffer","data":[]}'
-}
-
-var privateKey = Buffer.from(JSON.parse(privateKeyJsonString).data);
+var privateKey = Buffer.from("8783e12bada18492d40f5e0542af1eaa11b9f5dead962d3cf6bb672195776d14",'hex');//0x7e724e043ac584f196057ef9e6cc834d2e2847b2
+//var privateKey = Buffer.from("9166b12e30d8b599e4cf400b9ff33fa5f752f5704d815a4353686383915950a2",'hex');//0x47589e0858026460cf8fecb7cf9e0f32e4ee179c
 
 
 let gGasLimit = 22000;
@@ -59,7 +47,7 @@ function SignTx() {
     gasPrice: gGasPrice,
     gasLimit: gGasLimit,
     to: to,
-    chainId: 3,
+    chainId: 4,
     value: '0x02'
   };
   const tx = new Tx(rawTx);
@@ -90,7 +78,7 @@ function jsonTx() {
 }
 
 let startTime = new Date()
-let txCount = 10
+let txCount = 100
 let nonce = null
 async function main() {
   // while(!nonce) {
@@ -107,7 +95,7 @@ async function main() {
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
       log.log(new Date(), "pending: ", pendingNumber)
-      if (pendingNumber > 100) {
+      if (pendingNumber > 20000) {
         await pu.sleep(1000)
         continue
       }
