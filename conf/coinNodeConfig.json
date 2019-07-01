@@ -1,7 +1,7 @@
 {
   "url": {
     "wan": {
-      "testnet": "http://172.27.0.12:8545",
+      "testnet": "http://localhost:8545",
       "mainnet": "http://localhost:8545"
     },
     "wanipc": {
