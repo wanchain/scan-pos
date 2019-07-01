@@ -3,7 +3,7 @@
 let CoinNodeObj = require('../conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 let log = console
-let web3Instance = new CoinNodeObj(log, 'wanipc');
+let web3Instance = new CoinNodeObj(log, 'wan');
 let web3 = web3Instance.getClient()
 const assert = require('assert');
 const skb = require('./stakebase.js')
@@ -24,26 +24,8 @@ describe('stakeAppend test', async ()=> {
     let newAddr
     before("", async () => {
         await skb.Init()
-
-        // newAddr = await skb.newAccount();
-        // log.info("newAddr: ", newAddr)
-        // let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
-        // let secpub = pubs[0]
-        // let g1pub = pubs[1]
-        //
-        // let lockTime = 7
-        // let feeRate = 79
-        //
-        // // add validator
-        // let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
-        // let tranValue = 100000
-        // let txhash = await skb.sendStakeTransaction(tranValue, payload)
-        //
-        // log.info("stakein tx:", txhash)
-        // let rec = await skb.checkTxResult(txhash)
-        // assert(rec.status == '0x1', "stakein failed")
     })
-    it("T0 Normal stakeAppend", async ()=>{
+    it("T0 send from another account stakeAppend", async ()=>{
         // append validator
         let tranValue = 39000
         let newAddr = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
@@ -53,7 +35,7 @@ describe('stakeAppend test', async ()=> {
 
         log.info("stakein tx:", txhash)
         let rec = await skb.checkTxResult(txhash)
-        assert(rec.status == '0x1', "stakeAppend failed")
+        assert(rec.status == '0x0', "stakeAppend from another account should fail")
     })
     it("T1 invalidAddr stakeAppend", async ()=>{
         // append validator
@@ -66,14 +48,14 @@ describe('stakeAppend test', async ()=> {
             log.info("stakeAppend tx:", txhash)
             assert(false, "invalidAddr stakeAppend failed")
         }catch(err){
-            console.log(err.toString())
+            //console.log(err.toString())
             assert(err.toString().indexOf('Error: stakeAppend verify failed') == 0 , "invalidAddr stakeAppend should failed")
         }
     })
     it("T2 none-exist address stakeAppend", async ()=>{
         // append validator
         let tranValue = 93
-        let payload = skb.coinContract.stakeAppend.getData("0x90000000000000000000000000000000000000d2")
+        let payload = skb.coinContract.stakeAppend.getData("0x0000000000000000000000000000000000000011")
         console.log("payload: ", payload)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
@@ -89,7 +71,7 @@ describe('stakeAppend test', async ()=> {
         let secpub = pubs[0]
         let g1pub = pubs[1]
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
+        let cscContractAddr = "0x00000000000000000000000000000000000000da";
         let coinContract = contractDef.at(cscContractAddr);
         let tranValue = 50000
         let feeRate = 9000

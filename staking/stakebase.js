@@ -4,7 +4,7 @@ let CoinNodeObj = require('../conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 const bn = require('bignumber.js')
 let log = console
-let web3Instance = new CoinNodeObj(log, 'wanipc');
+let web3Instance = new CoinNodeObj(log, 'wan');
 let web3 = web3Instance.getClient()
 const assert = require('assert');
 let _coinbase;
@@ -120,7 +120,7 @@ const cscDefinition = [
 ]
 
 let contractDef = web3.eth.contract(cscDefinition);
-let cscContractAddr = "0x00000000000000000000000000000000000000d8";
+let cscContractAddr = "0x00000000000000000000000000000000000000da";
 let coinContract = contractDef.at(cscContractAddr);
 
 async function sendStakeTransaction(txValue, txPayload) {
@@ -229,7 +229,7 @@ async function newAccount() {
     return addr
 }
 async function Init() {
-    //_coinbase_coinbase = await pu.promisefy(web3.eth.getCoinbase, [], web3.eth)
+    //_coinbase = await pu.promisefy(web3.eth.getCoinbase, [], web3.eth)
     _coinbase = "0xbd100cf8286136659a7d63a38a154e28dbf3e0fd"
     console.log("coinbase: ", _coinbase)
 }

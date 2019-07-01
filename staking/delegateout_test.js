@@ -3,7 +3,7 @@
 let CoinNodeObj = require('../conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 let log = console
-let web3Instance = new CoinNodeObj(log, 'wanipc');
+let web3Instance = new CoinNodeObj(log, 'wan');
 let web3 = web3Instance.getClient()
 const skb = require('./stakebase.js')
 const assert = require('assert');

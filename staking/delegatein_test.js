@@ -3,7 +3,7 @@
 let CoinNodeObj = require('../conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 let log = console
-let web3Instance = new CoinNodeObj(log, 'wanipc');
+let web3Instance = new CoinNodeObj(log, 'wan');
 let web3 = web3Instance.getClient()
 const assert = require('assert');
 
@@ -103,25 +103,7 @@ describe('delegateIn test', async ()=> {
         let rec = await skb.checkTxResult(txhash)
         assert(rec.status == '0x1', "second delegatein value<100 delegateIn should success")
     })
-    it("T5  delegatein value>5*amount delegateIn", async ()=>{
 
-        let payload = skb.coinContract.delegateIn.getData(newAddr)
-        let tranValue = 400000
-        let txhash = await skb.sendStakeTransaction(tranValue, payload)
-
-        log.info("delegateIn tx:", txhash)
-        let rec = await skb.checkTxResult(txhash)
-        assert(rec.status == '0x1', "second delegatein value=4*amount delegateIn should success")
-
-        payload = skb.coinContract.delegateIn.getData(newAddr)
-        tranValue = 100000
-        txhash = await skb.sendStakeTransaction(tranValue, payload)
-
-        log.info("delegateIn tx:", txhash)
-        rec = await skb.checkTxResult(txhash)
-        assert(rec.status == '0x0', "second delegatein value>5*amount delegateIn should fail")
-
-    })
     it("TCP Normal delegateIn, check probability", async ()=>{
         // stakein first
         let newAddr = await skb.newAccount();
@@ -203,6 +185,53 @@ describe('delegateIn test', async ()=> {
             t.status = ts[i][1]
             await delegateInOne(t)
         }
+    })
+    after(async ()=>{
+        log.info("====end====")
+        //process.exit(0)
+    })
+})
+
+describe('delegateIn test', async ()=> {
+    let newAddr
+    before("", async () => {
+        await skb.Init()
+        newAddr = await skb.newAccount();
+        log.info("newAddr: ", newAddr)
+        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
+        let secpub = pubs[0]
+        let g1pub = pubs[1]
+
+        let lockTime = 7
+        let feeRate = 79
+
+        // add validator
+        let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
+        let tranValue = 100000
+        let txhash = await skb.sendStakeTransaction(tranValue, payload)
+
+        log.info("delegateIn tx:", txhash)
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "delegateIn failed")
+    })
+    it("TM  delegatein value>10*amount delegateIn", async ()=>{
+
+        let payload = skb.coinContract.delegateIn.getData(newAddr)
+        let tranValue = 999900
+        let txhash = await skb.sendStakeTransaction(tranValue, payload)
+
+        log.info("delegateIn tx:", txhash)
+        let rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x1', "second delegatein value=4*amount delegateIn should success")
+
+        payload = skb.coinContract.delegateIn.getData(newAddr)
+        tranValue = 101
+        txhash = await skb.sendStakeTransaction(tranValue, payload)
+
+        log.info("delegateIn tx:", txhash)
+        rec = await skb.checkTxResult(txhash)
+        assert(rec.status == '0x0', "second delegatein value>5*amount delegateIn should fail")
+
     })
     after(async ()=>{
         log.info("====end====")

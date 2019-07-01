@@ -4,13 +4,14 @@ let CoinNodeObj = require('../conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 const bn = require('bignumber.js')
 let log = console
-let web3Instance = new CoinNodeObj(log, 'wanipc');
+let web3Instance = new CoinNodeObj(log, 'wan');
 const coder = require('web3/lib/solidity/coder');
 let web3 = web3Instance.getClient()
 const assert = require('assert');
 const skb = require('./stakebase.js')
 let passwd = "wanglu"
 
+let cscContractAddr = "0x00000000000000000000000000000000000000da";
 
 
 function checkStakeInReceipt(rec, t, newAddr) {
@@ -32,7 +33,6 @@ async function stakeInOne(t) {
     console.log("regist:", t.validatorAddr, secpub)
     let g1pub = pubs[1]
     let contractDef = web3.eth.contract(skb.cscDefinition);
-    let cscContractAddr = "0x00000000000000000000000000000000000000d2";
     let coinContract = contractDef.at(cscContractAddr);
     let payload = coinContract.stakeIn.getData(secpub, g1pub, t.lockTime, t.feeRate)
     let txhash = await skb.sendStakeTransaction(t.tranValue, payload)
@@ -76,7 +76,8 @@ describe('stakein test', ()=> {
         await skb.Init()
     })
     it("T0 Normal stakein", async ()=>{
-        let newAddr = await skb.newAccount();
+        //let newAddr = await skb.newAccount();
+        let newAddr = "0x23fc2eda99667fd3df3caa7ce7e798d94eec06eb"
         log.info("newAddr: ", newAddr)
         let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
         let secpub = pubs[0]
@@ -84,11 +85,10 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
-        let feeRate = 79
+        let feeRate = 9700
 
         // add validator
         let payload = coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
@@ -118,7 +118,6 @@ describe('stakein test', ()=> {
         let secpub =  secpub_r.slice(0,2) + 0x13 + secpub_r.slice(3)// change a byte
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -146,7 +145,6 @@ describe('stakein test', ()=> {
         let g1pub =  g1pub_r.slice(0,2) + 0x13 + g1pub_r.slice(3)// change a byte
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -173,7 +171,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -196,7 +193,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -219,7 +215,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -245,7 +240,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -271,7 +265,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -299,7 +292,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -322,7 +314,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -345,7 +336,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -368,7 +358,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -393,7 +382,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 7
@@ -417,7 +405,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 90
@@ -441,7 +428,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 6
@@ -468,7 +454,6 @@ describe('stakein test', ()=> {
         /////////////////////////////////register staker////////////////////////////////////////////////////////////////////////
 
         let contractDef = web3.eth.contract(skb.cscDefinition);
-        let cscContractAddr = "0x00000000000000000000000000000000000000d2";
         let coinContract = contractDef.at(cscContractAddr);
 
         let lockTime = 91
@@ -487,14 +472,13 @@ describe('stakein test', ()=> {
     })
     it("TCP Normal stakein, check probability", async ()=>{
         async function stakeInOne(t) {
-            //let newAddr = await skb.newAccount();
-            let newAddr = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
+            let newAddr = await skb.newAccount();
+            //let newAddr = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
             log.info("newAddr: ", newAddr)
             let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
             let secpub = pubs[0]
             let g1pub = pubs[1]
             let contractDef = web3.eth.contract(skb.cscDefinition);
-            let cscContractAddr = "0x00000000000000000000000000000000000000d2";
             let coinContract = contractDef.at(cscContractAddr);
             let payload = coinContract.stakeIn.getData(secpub, g1pub, t.lockTime, t.feeRate)
             let txhash = await skb.sendStakeTransaction(t.tranValue, payload)
