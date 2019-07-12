@@ -53,6 +53,7 @@ function SignTx() {
 
   tx.sign(privateKey);
   const serializedTx = tx.serialize();
+  console.log("0x" + serializedTx.toString('hex'))
   return "0x" + serializedTx.toString('hex')
 }
 
