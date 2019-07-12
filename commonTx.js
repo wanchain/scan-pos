@@ -48,6 +48,7 @@ function SignTx() {
     chainId: 4,
     value: '0x02'
   };
+  console.log(rawTx);
   const tx = new Tx(rawTx);
 
   tx.sign(privateKey);
