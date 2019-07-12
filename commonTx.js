@@ -63,12 +63,12 @@ async function main() {
   //   web3.eth.getTransactionCount(from, null, (no) => { nonce = no;console.log("nonce:", nonce); });
   //   await pu.sleep(1000)
   // }
-
+  nonce = await pu.promisefy(web3.eth.getTransactionCount, [from], web3.eth);
+  console.log("nonce:", nonce)
   while (1) {
     //checkBlock()
     try {
-      nonce = await pu.promisefy(web3.eth.getTransactionCount, [from, "pending"], web3.eth);
-      console.log("nonce:", nonce)
+
 
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
@@ -95,6 +95,9 @@ async function main() {
     timePass = timePass / 1000
 
     log.log(new Date(), "send ", txCount, " txs, total:", totalSendTx, "tps: ", totalSendTx / timePass)
+
+    nonce = await pu.promisefy(web3.eth.getTransactionCount, [from, "pending"], web3.eth);
+    console.log("nonce:", nonce)
   }
 
   console.log("done.")
