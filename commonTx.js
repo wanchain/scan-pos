@@ -48,12 +48,10 @@ function SignTx() {
     chainId: 4,
     value: '0x02'
   };
-  console.log(rawTx);
   const tx = new Tx(rawTx);
 
   tx.sign(privateKey);
   const serializedTx = tx.serialize();
-  console.log("0x" + serializedTx.toString('hex'))
   return "0x" + serializedTx.toString('hex')
 }
 
