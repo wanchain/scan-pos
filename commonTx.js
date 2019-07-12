@@ -85,24 +85,28 @@ async function main() {
         await pu.sleep(1000)
         continue
       }
+
+      let rs = [];
+      for (let i = 0; i < txCount; i++) {
+        let tx = SignTx()
+        let r = pu.promisefy(web3.eth.sendRawTransaction, [tx], web3.eth);
+        rs.push(r)
+      }
+      await Promise.all(rs)
+      totalSendTx += txCount
+      //await pu.sleep(1000)
+      let timePass = new Date() - startTime;
+
+      timePass = timePass / 1000
+
+      log.log(new Date(), "send ", txCount, " txs, total:", totalSendTx, "tps: ", totalSendTx / timePass)
+
     } catch (err) {
-      log.error("web3.txpool.status: ", err)
+      log.error(err)
+      await pu.sleep(1000)
+      nonce = await pu.promisefy(web3.eth.getTransactionCount, [from], web3.eth);
+      console.log("nonce:", nonce)
     }
-
-    let rs = [];
-    for (let i = 0; i < txCount; i++) {
-      let tx = SignTx()
-      let r = pu.promisefy(web3.eth.sendRawTransaction, [tx], web3.eth);
-      rs.push(r)
-    }
-    await Promise.all(rs)
-    totalSendTx += txCount
-    //await pu.sleep(1000)
-    let timePass = new Date() - startTime;
-
-    timePass = timePass / 1000
-
-    log.log(new Date(), "send ", txCount, " txs, total:", totalSendTx, "tps: ", totalSendTx / timePass)
   }
 
   console.log("done.")
