@@ -59,6 +59,7 @@ let startTime = new Date()
 let txCount = 100
 let nonce = null
 let reorgTimes = 0
+let zeroTimes = 0
 async function main() {
   // while(!nonce) {
   //   web3.eth.getTransactionCount(from, null, (no) => { nonce = no;console.log("nonce:", nonce); });
@@ -86,13 +87,28 @@ async function main() {
         continue
       }
 
+      if (pendingNumber == 0) {
+        zeroTimes++;
+        if (zeroTimes > 10) {
+          await pu.sleep(1000)
+          nonce = await pu.promisefy(web3.eth.getTransactionCount, [from], web3.eth);
+          console.log("nonce:", nonce)
+          zeroTimes = 0;
+          continue
+        }
+      } else {
+        zeroTimes = 0;
+      }
+
       let rs = [];
       for (let i = 0; i < txCount; i++) {
         let tx = SignTx()
         let r = pu.promisefy(web3.eth.sendRawTransaction, [tx], web3.eth);
         rs.push(r)
       }
+
       await Promise.all(rs)
+
       totalSendTx += txCount
       //await pu.sleep(1000)
       let timePass = new Date() - startTime;
