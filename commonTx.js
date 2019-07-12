@@ -58,7 +58,7 @@ function SignTx() {
 }
 
 let startTime = new Date()
-let txCount = 100
+let txCount = 1
 let nonce = null
 async function main() {
   // while(!nonce) {
