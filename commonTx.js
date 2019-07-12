@@ -67,7 +67,7 @@ async function main() {
   while (1) {
     //checkBlock()
     try {
-      nonce = await pu.promisefy(web3.eth.getTransactionCount, [from], web3.eth);
+      nonce = await pu.promisefy(web3.eth.getTransactionCount, [from, "pending"], web3.eth);
       console.log("nonce:", nonce)
 
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
