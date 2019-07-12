@@ -58,8 +58,9 @@ function SignTx() {
 }
 
 let startTime = new Date()
-let txCount = 1
+let txCount = 100
 let nonce = null
+let reorgTimes = 0
 async function main() {
   // while(!nonce) {
   //   web3.eth.getTransactionCount(from, null, (no) => { nonce = no;console.log("nonce:", nonce); });
@@ -70,7 +71,14 @@ async function main() {
   while (1) {
     //checkBlock()
     try {
-
+      let epID = await pu.promisefy(web3.pos.getEpochID, [])
+      let reorgRet = await pu.promisefy(web3.pos.getReorgState, [epID])
+      console.log('reorg:', reorgRet);
+      if (reorgRet && reorgRet[0] > reorgTimes) {
+        reorgTimes = reorgRet[0]
+        nonce = await pu.promisefy(web3.eth.getTransactionCount, [from], web3.eth);
+        console.log("nonce:", nonce)
+      }
 
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
@@ -97,9 +105,6 @@ async function main() {
     timePass = timePass / 1000
 
     log.log(new Date(), "send ", txCount, " txs, total:", totalSendTx, "tps: ", totalSendTx / timePass)
-
-    nonce = await pu.promisefy(web3.eth.getTransactionCount, [from, "pending"], web3.eth);
-    console.log("nonce:", nonce)
   }
 
   console.log("done.")
