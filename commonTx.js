@@ -8,13 +8,14 @@ const optimist = require('optimist');
 
 let argv = optimist
   .usage('Usage: $0 -a [fromAddr] -p [privateKey without 0x]')
-  .default('a', "0x7e724e043ac584f196057ef9e6cc834d2e2847b2")
-  .default('p', "8783e12bada18492d40f5e0542af1eaa11b9f5dead962d3cf6bb672195776d14")
+  .default('a', "0x9da26fc2e1d6ad9fdd46138906b0104ae68a65d8")
+  .default('p', "b6a03207128827eaae0d31d97a7a6243de31f2baf99eabd764e33389ecf436fc")
   .argv;
 
 // let beginBlock = argv.b;
 // let endBlock = argv.e;
 
+console.log(argv.a, argv.p)
 
 var Tx = wanUtil.wanchainTx;
 
