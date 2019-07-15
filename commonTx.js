@@ -3,14 +3,26 @@
 let CoinNodeObj = require('conf/coinNodeObj.js')
 const pu = require("promisefy-util")
 const wanUtil = require('wanchain-util');
+const optimist = require('optimist');
+
+
+let argv = optimist
+  .usage('Usage: $0 -a [fromAddr] -p [privateKey without 0x]')
+  .default('a', "0x7e724e043ac584f196057ef9e6cc834d2e2847b2")
+  .default('p', "8783e12bada18492d40f5e0542af1eaa11b9f5dead962d3cf6bb672195776d14")
+  .argv;
+
+// let beginBlock = argv.b;
+// let endBlock = argv.e;
 
 
 var Tx = wanUtil.wanchainTx;
 
-let from = "0x7e724e043ac584f196057ef9e6cc834d2e2847b2"
+let from = argv.a;//"0x7e724e043ac584f196057ef9e6cc834d2e2847b2"
+let privKeyString = argv.p; //8783e12bada18492d40f5e0542af1eaa11b9f5dead962d3cf6bb672195776d14
 let to = "0x47589e0858026460cf8fecb7cf9e0f32e4ee179c"
 
-var privateKey = Buffer.from("8783e12bada18492d40f5e0542af1eaa11b9f5dead962d3cf6bb672195776d14", 'hex');//0x7e724e043ac584f196057ef9e6cc834d2e2847b2
+var privateKey = Buffer.from(privKeyString, 'hex');//0x7e724e043ac584f196057ef9e6cc834d2e2847b2
 //var privateKey = Buffer.from("9166b12e30d8b599e4cf400b9ff33fa5f752f5704d815a4353686383915950a2",'hex');//0x47589e0858026460cf8fecb7cf9e0f32e4ee179c
 
 
