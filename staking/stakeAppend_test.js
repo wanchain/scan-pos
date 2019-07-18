@@ -16,26 +16,41 @@ function checkStakeAppendReceipt(rec, t, newAddr) {
     console.log('0x'+coder.encodeParam("bytes32", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)))
     assert(rec.logs[0].topics[0] === skb.getEventHash('stakeAppend',skb.cscDefinition), "topic  failed")
     assert(rec.logs[0].topics[1] === '0x'+coder.encodeParam("address", skb.coinbase()), "topic  failed")
-    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
-    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
+    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
+    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
 
 }
 describe('stakeAppend test', async ()=> {
     let newAddr
     before("", async () => {
         await skb.Init()
-    })
+        newAddr = await skb.newAccount();
+        log.info("newAddr: ", newAddr)
+        let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, skb.passwd], web3.personal)
+        let secpub = pubs[0]
+        let g1pub = pubs[1]
+
+        let lockTime = 7
+        let feeRate = 79
+
+        // add validator
+        let payload = skb.coinContract.stakeIn.getData(secpub, g1pub, lockTime, feeRate)
+        let tranValue = 100000
+        let txhash = await skb.sendStakeTransaction(tranValue, payload)
+
+        log.info("delegateIn tx:", txhash)
+        let rec = await skb.checkTxResult(txhash)  })
     it("T0 send from another account stakeAppend", async ()=>{
         // append validator
         let tranValue = 39000
-        let newAddr = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
         let payload = skb.coinContract.stakeAppend.getData(newAddr)
         console.log("payload: ", payload)
         let txhash = await skb.sendStakeTransaction(tranValue, payload)
 
-        log.info("stakein tx:", txhash)
+        log.info("stakeAppend tx:", txhash)
         let rec = await skb.checkTxResult(txhash)
         assert(rec.status == '0x0', "stakeAppend from another account should fail")
+
     })
     it("T1 invalidAddr stakeAppend", async ()=>{
         // append validator
@@ -97,9 +112,9 @@ describe('stakeAppend test', async ()=> {
             assert(staker.lockEpochs == lockTime, "failed stakeAppend ")
             assert(staker.nextLockEpochs == lockTime, "failed stakeAppend ")
             totalStakeAmount = totalStakeAmount.add(web3.toWei(web3.toBigNumber(t.tranValue).mul(skb.getWeight(lockTime))))
-            console.log(staker.stakeAmount)
+            console.log(staker.votingPower)
             console.log(totalStakeAmount)
-            assert(staker.stakeAmount.cmp(totalStakeAmount)==0, "failed stakeAppend")
+            assert(staker.votingPower.cmp(totalStakeAmount)==0, "failed stakeAppend")
             totalAmount = totalAmount.add(web3.toWei(web3.toBigNumber(t.tranValue)))
             assert(staker.amount.cmp(totalAmount)==0, "failed stakeAppend")
 
@@ -119,7 +134,18 @@ describe('stakeAppend test', async ()=> {
             }catch{
             }
 
-
+            let options = {
+                fromBlock: 0,
+                toBlock: 'latest',
+                address:"0x00000000000000000000000000000000000000da",
+                topics: [skb.getEventHash('stakeAppend',skb.cscDefinition),
+                    '0x'+coder.encodeParam("address", skb.coinbase()),
+                    '0x'+coder.encodeParam("address", newAddr),
+                    '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16))]
+            }
+            let filter = web3.eth.filter(options);
+            let events = await pu.promisefy(filter.get,[],filter);
+            console.log("Ti Normal partnerIn:",events)
         }
         let ts = [
             [700,'0x1'],
@@ -133,6 +159,7 @@ describe('stakeAppend test', async ()=> {
             t.status = ts[i][1]
             await stakeAppendOne(t)
         }
+
     })
 
     after(async ()=>{

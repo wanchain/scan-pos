@@ -158,7 +158,7 @@ describe('delegateOut test', async ()=> {
             //console.log(staker)
             assert(staker.lockEpochs == lockTime, "failed delegateOut")
             assert(staker.nextLockEpochs == lockTime, "failed delegateOut")
-            assert(staker.stakeAmount.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed delegateOut")
+            assert(staker.votingPower.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed delegateOut")
             assert(staker.amount.cmp(web3.toWei(web3.toBigNumber(tranValue)))==0, "failed delegateOut")
 
             assert(staker.clients.length == 1, "delegateOut failed")
@@ -169,9 +169,9 @@ describe('delegateOut test', async ()=> {
             console.log(staker.clients[0].amount.toString(10))
             console.log(totalAmount.toString(10))
             assert(staker.clients[0].amount.cmp(totalAmount)==0, "delegateOut failed")
-            let stakeAmount =web3.toWei(web3.toBigNumber(dtranValue)).mul(skb.getWeight(skb.minEpoch))
-            totalStakeAmount = totalStakeAmount.add(stakeAmount)
-            assert(staker.clients[0].stakeAmount.cmp(totalStakeAmount)==0, "delegateOut failed")
+            let votingPower =web3.toWei(web3.toBigNumber(dtranValue)).mul(skb.getWeight(skb.minEpoch))
+            totalStakeAmount = totalStakeAmount.add(votingPower)
+            assert(staker.clients[0].votingPower.cmp(totalStakeAmount)==0, "delegateOut failed")
 
             let epb = await skb.getEpochStakerInfo(Number(staker.stakingEpoch), newAddr)
             console.log(epb)

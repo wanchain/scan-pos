@@ -124,7 +124,11 @@ module.exports = {
           call: 'pos_getReorgState',
           params: 1
         }),
-    
+        new web3._extend.Method({
+          name: 'getEpochStakeOut',
+          call: 'pos_getEpochStakeOut',
+          params: 1
+        }),
         new web3._extend.Method({
           name: 'getPosInfo',
           call: 'pos_getPosInfo',

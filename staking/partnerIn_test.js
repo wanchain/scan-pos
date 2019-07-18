@@ -7,6 +7,7 @@ let web3Instance = new CoinNodeObj(log, 'wan');
 let web3 = web3Instance.getClient()
 const assert = require('assert');
 const skb = require('./stakebase.js')
+const coder = require('web3/lib/solidity/coder');
 
 
 describe('partnerIn test', async ()=> {
@@ -42,6 +43,19 @@ describe('partnerIn test', async ()=> {
         log.info("partnerIn tx:", txhash)
         let rec = await skb.checkTxResult(txhash)
         assert(rec.status == '0x1', "partnerIn failed")
+        let options = {
+            fromBlock: 0,
+            toBlock: 'latest',
+            address:"0x00000000000000000000000000000000000000da",
+            topics: [skb.getEventHash('partnerIn',skb.cscDefinition),
+                '0x'+coder.encodeParam("address", skb.coinbase()),
+                '0x'+coder.encodeParam("address", newAddr),
+                '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(tranValue)).toString(16))]
+        }
+        let filter = web3.eth.filter(options);
+        let events = await pu.promisefy(filter.get,[],filter);
+        console.log("T0 Normal partnerIn:",events)
+
     })
     it("T1 invalidAddr partnerIn", async ()=>{
         // append validator

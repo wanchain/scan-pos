@@ -116,6 +116,198 @@ const cscDefinition = [
         "payable": false,
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "addr",
+                "type": "address"
+            },
+            {
+                "name": "feeRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeUpdateFeeRate",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "v",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "feeRate",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "lockEpoch",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeIn",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "v",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeAppend",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "lockEpoch",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeUpdate",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "v",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "renewal",
+                "type": "bool"
+            },
+            {
+                "indexed": false,
+                "name": "stakingEpoch",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "lockEpoch",
+                "type": "uint256"
+            }
+        ],
+        "name": "partnerIn",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "v",
+                "type": "uint256"
+            }
+        ],
+        "name": "delegateIn",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            }
+        ],
+        "name": "delegateOut",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "feeRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeUpdateFeeRate",
+        "type": "event"
     }
 ]
 
@@ -123,10 +315,12 @@ let contractDef = web3.eth.contract(cscDefinition);
 let cscContractAddr = "0x00000000000000000000000000000000000000da";
 let coinContract = contractDef.at(cscContractAddr);
 
-async function sendStakeTransaction(txValue, txPayload) {
-    console.log("sendStakeTransaction ")
+async function sendStakeTransaction(txValue, txPayload,from) {
+    if(!from){
+        from = _coinbase
+    }
     let txhash = await pu.promisefy(web3.personal.sendTransaction, [{
-        from: _coinbase,
+        from: from,
         to: cscContractAddr,
         value: '0x'+web3.toWei(web3.toBigNumber(txValue)).toString(16),
         data: txPayload,
@@ -154,14 +348,14 @@ async function waitReceipt(txhash) {
 
 function stakerConver(staker) {
     staker.amount = web3.toBigNumber(staker.amount)
-    staker.stakeAmount = web3.toBigNumber(staker.stakeAmount)
+    staker.votingPower = web3.toBigNumber(staker.votingPower)
     for(let i=0; i<staker.partners.length; i++) {
         staker.partners[i].amount = web3.toBigNumber(staker.partners[i].amount)
-        staker.partners[i].stakeAmount = web3.toBigNumber(staker.partners[i].stakeAmount)
+        staker.partners[i].votingPower = web3.toBigNumber(staker.partners[i].votingPower)
     }
     for(let i=0; i<staker.clients.length; i++) {
         staker.clients[i].amount = web3.toBigNumber(staker.clients[i].amount)
-        staker.clients[i].stakeAmount = web3.toBigNumber(staker.clients[i].stakeAmount)
+        staker.clients[i].votingPower = web3.toBigNumber(staker.clients[i].votingPower)
     }
 }
 
@@ -186,7 +380,7 @@ function getEventHash(eventName, contractAbi) {
 function getcommandString(funcName, contractAbi) {
     for (var i = 0; i < contractAbi.length; ++i) {
         let item = contractAbi[i];
-        if (item.name == funcName) {
+        if (item.name == funcName && item.type == "event") {
             let command = funcName + '(';
             for (var j = 0; j < item.inputs.length; ++j) {
                 if (j != 0) {
@@ -212,7 +406,7 @@ async function getEpochStakerInfo(epochID, addr) {
         if(stakers[i].Address == staker.Address){
             assert(stakers[i].address == staker.address, "getEpochStakerInfo failed")
             assert(stakers[i].amount == staker.amount, "getEpochStakerInfo failed")
-            assert(stakers[i].stakeAmount == staker.stakeAmount, "getEpochStakerInfo failed")
+            assert(stakers[i].votingPower == staker.votingPower, "getEpochStakerInfo failed")
         }
     }
     return staker
@@ -230,6 +424,7 @@ async function newAccount() {
 }
 async function Init() {
     //_coinbase = await pu.promisefy(web3.eth.getCoinbase, [], web3.eth)
+    //_coinbase = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
     _coinbase = "0xbd100cf8286136659a7d63a38a154e28dbf3e0fd"
     console.log("coinbase: ", _coinbase)
 }
@@ -242,6 +437,29 @@ async function checkTxResult(txhash) {
     assert(rec != null, "Can't get receipt of "+txhash)
     return rec
 }
+async function stakeUpdate(t){
+    // update validator
+    let payload = coinContract.stakeUpdate.getData(t.validatorAddr, t.lockTime)
+    let txhash = await sendStakeTransaction(0, payload)
+
+    log.info("stakeUpdate tx:", txhash)
+    let rec = await checkTxResult(txhash)
+    assert(rec.status == '0x1', "stakeUpdate failed")
+}
+async function stakeInNew(t) {
+    let newAddr = await newAccount();
+    let pubs = await pu.promisefy(web3.personal.showPublicKey, [newAddr, passwd], web3.personal)
+    let secpub = pubs[0]
+    let g1pub = pubs[1]
+    let contractDef = web3.eth.contract(cscDefinition);
+    let coinContract = contractDef.at(cscContractAddr);
+    let payload = coinContract.stakeIn.getData(secpub, g1pub, t.lockTime, t.feeRate)
+    let txhash = await sendStakeTransaction(t.tranValue, payload)
+    let rec = await checkTxResult(txhash)
+    assert(rec.status == '0x1', "stakeInNew failed")
+    return newAddr
+}
+
 module.exports.cscDefinition = cscDefinition
 module.exports.waitReceipt = waitReceipt
 module.exports.sendStakeTransaction = sendStakeTransaction
@@ -252,6 +470,9 @@ module.exports.coinContract = coinContract
 
 module.exports.passwd = passwd
 module.exports.checkTxResult = checkTxResult
+module.exports.stakeInNew = stakeInNew
+module.exports.stakeUpdate = stakeUpdate
+
 
 module.exports.getEpochStakerInfo = getEpochStakerInfo
 module.exports.getStakeInfobyAddr = getStakeInfobyAddr

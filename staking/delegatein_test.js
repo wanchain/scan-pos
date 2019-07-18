@@ -18,8 +18,8 @@ function checkDelegateInReceipt(rec, t, newAddr) {
     console.log('0x'+coder.encodeParam("bytes32", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)))
     assert(rec.logs[0].topics[0] === skb.getEventHash('delegateIn',skb.cscDefinition), "topic  failed")
     assert(rec.logs[0].topics[1] === '0x'+coder.encodeParam("address", skb.coinbase()), "topic  failed")
-    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
-    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
+    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
+    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
 
 }
 
@@ -139,7 +139,7 @@ describe('delegateIn test', async ()=> {
             //console.log(staker)
             assert(staker.lockEpochs == lockTime, "failed delegateIn")
             assert(staker.nextLockEpochs == lockTime, "failed delegateIn")
-            assert(staker.stakeAmount.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed delegateIn")
+            assert(staker.votingPower.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed delegateIn")
             assert(staker.amount.cmp(web3.toWei(web3.toBigNumber(tranValue)))==0, "failed delegateIn")
 
             assert(staker.clients.length == 1, "delegatein failed")
@@ -150,9 +150,9 @@ describe('delegateIn test', async ()=> {
             console.log(staker.clients[0].amount.toString(10))
             console.log(totalAmount.toString(10))
             assert(staker.clients[0].amount.cmp(totalAmount)==0, "delegate failed")
-            let stakeAmount =web3.toWei(web3.toBigNumber(t.tranValue)).mul(skb.getWeight(skb.minEpoch))
-            totalStakeAmount = totalStakeAmount.add(stakeAmount)
-            assert(staker.clients[0].stakeAmount.cmp(totalStakeAmount)==0, "delegate failed")
+            let votingPower =web3.toWei(web3.toBigNumber(t.tranValue)).mul(skb.getWeight(skb.minEpoch))
+            totalStakeAmount = totalStakeAmount.add(votingPower)
+            assert(staker.clients[0].votingPower.cmp(totalStakeAmount)==0, "delegate failed")
 
             let epb = await skb.getEpochStakerInfo(Number(staker.stakingEpoch), newAddr)
             console.log(epb)

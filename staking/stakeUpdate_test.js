@@ -17,8 +17,8 @@ function checkStakeUpdateReceipt(rec, t, newAddr) {
     console.log('0x'+coder.encodeParam("bytes32", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)))
     assert(rec.logs[0].topics[0] === skb.getEventHash('stakeUpdate',skb.cscDefinition), "topic  failed")
     assert(rec.logs[0].topics[1] === '0x'+coder.encodeParam("address", skb.coinbase()), "topic  failed")
-    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("int", t.lockTime), "topic  failed")
-    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
+    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("int", t.lockTime), "topic  failed")
+    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
 
 }
 describe('stakeUpdate test', async ()=> {
@@ -174,6 +174,18 @@ describe('stakeUpdate test', async ()=> {
             //console.log(staker)
             assert(staker.lockEpochs == lockTime, "failed stakeUpdate in")
             assert(staker.nextLockEpochs == t.lockTime, "failed stakeUpdate in")
+            let options = {
+                fromBlock: 0,
+                toBlock: 'latest',
+                address:"0x00000000000000000000000000000000000000da",
+                topics: [skb.getEventHash('stakeUpdate',skb.cscDefinition),
+                    '0x'+coder.encodeParam("address", skb.coinbase()),
+                    '0x'+coder.encodeParam("address", newAddr),
+                    '0x'+coder.encodeParam("int256", t.lockTime)]
+            }
+            let filter = web3.eth.filter(options);
+            let events = await pu.promisefy(filter.get,[],filter);
+            console.log("T0 Normal partnerIn:",events)
         }
         let ts = [
             [7,'0x1'],

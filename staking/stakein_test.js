@@ -16,55 +16,19 @@ let cscContractAddr = "0x00000000000000000000000000000000000000da";
 
 function checkStakeInReceipt(rec, t, newAddr) {
     assert(rec.logs.length == 1, "stakein log failed")
-    assert(rec.logs[0].topics.length === 6, "topic length failed")
+    //assert(rec.logs[0].topics.length === 6, "topic length failed")
     console.log(rec.logs[0].topics)
     console.log('0x'+coder.encodeParam("bytes32", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)))
     assert(rec.logs[0].topics[0] === skb.getEventHash('stakeIn',skb.cscDefinition), "topic  failed")
     assert(rec.logs[0].topics[1] === '0x'+coder.encodeParam("address", skb.coinbase()), "topic  failed")
-    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
-    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("int", t.feeRate), "topic  failed")
-    assert(rec.logs[0].topics[4] === '0x'+coder.encodeParam("int", t.lockTime), "topic  failed")
-    assert(rec.logs[0].topics[5] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
+    assert(rec.logs[0].topics[2] === '0x'+coder.encodeParam("address", newAddr), "topic  failed")
+    assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("int256", '0x'+web3.toWei(web3.toBigNumber(t.tranValue)).toString(16)), "topic  failed")
+    assert(rec.logs[0].data === '0x'+coder.encodeParams(["int256","int256"], [t.feeRate,t.lockTime]), "topic data failed")
+    // assert(rec.logs[0].topics[3] === '0x'+coder.encodeParam("int", t.feeRate), "topic  failed")
+    // assert(rec.logs[0].topics[4] === '0x'+coder.encodeParam("int", t.lockTime), "topic  failed")
 }
 
-async function stakeInOne(t) {
-    let pubs = await pu.promisefy(web3.personal.showPublicKey, [t.validatorAddr, passwd], web3.personal)
-    let secpub = pubs[0]
-    console.log("regist:", t.validatorAddr, secpub)
-    let g1pub = pubs[1]
-    let contractDef = web3.eth.contract(skb.cscDefinition);
-    let coinContract = contractDef.at(cscContractAddr);
-    let payload = coinContract.stakeIn.getData(secpub, g1pub, t.lockTime, t.feeRate)
-    let txhash = await skb.sendStakeTransaction(t.tranValue, payload)
-    return
-    let rec = await skb.checkTxResult(txhash)
-    assert(rec.status == t.status, "stakein failed")
-    if(t.status == '0x0') return
-    checkStakeInReceipt(rec, t, t.validatorAddr)
-    let staker = await skb.getStakeInfobyAddr(t.validatorAddr);
-    console.log(staker)
-    assert(staker.lockEpochs == t.lockTime, "failed stakein in")
-    assert(staker.nextLockEpochs == t.lockTime, "failed stakein in")
-    assert(staker.stakeAmount.cmp(web3.toWei(web3.toBigNumber(t.tranValue).mul(skb.getWeight(t.lockTime))))==0, "failed stakein in")
-    assert(staker.amount.cmp(web3.toWei(web3.toBigNumber(t.tranValue)))==0, "failed stakein in")
-    console.log("typeof staker.StakingEpoch", typeof(staker.stakingEpoch))
 
-    let epb
-    try {
-        epb = await skb.getEpochStakerInfo(Number(staker.stakingEpoch), t.validatorAddr)
-    }catch(err){
-        console.log("getEpochStakerInfo:", err)
-    }
-    console.log(epb)
-
-    try {
-        let epe = await skb.getEpochStakerInfo(Number(staker.stakingEpoch)+t.lockTime, t.validatorAddr)
-        console.log(epe)
-        assert(false, "last epoch, the probability shuold be empty")
-    }catch(err){
-        assert(-1 != err.toString().indexOf("Validator is exiting"), "expired, prompt message is wrong")
-    }
-}
 
 async function sendOne(t) {
     let txhash = await pu.promisefy(web3.personal.sendTransaction, [{from:'0x29c9cc023a7cc3a867153ba7bd86f7ad7ec96128', to:t.validatorAddr, value: web3.toWei(1000)}, passwd], web3.personal)
@@ -104,7 +68,7 @@ describe('stakein test', ()=> {
         console.log(staker)
         assert(staker.lockEpochs == lockTime, "failed stakein in")
         assert(staker.nextLockEpochs == lockTime, "failed stakein in")
-        assert(staker.stakeAmount.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed stakein in")
+        assert(staker.votingPower.cmp(web3.toWei(web3.toBigNumber(tranValue).mul(skb.getWeight(lockTime))))==0, "failed stakein in")
         assert(staker.amount.cmp(web3.toWei(web3.toBigNumber(tranValue)))==0, "failed stakein in")
 
     })
@@ -491,7 +455,7 @@ describe('stakein test', ()=> {
             console.log(staker)
             assert(staker.lockEpochs == t.lockTime, "failed stakein in")
             assert(staker.nextLockEpochs == t.lockTime, "failed stakein in")
-            assert(staker.stakeAmount.cmp(web3.toWei(web3.toBigNumber(t.tranValue).mul(skb.getWeight(t.lockTime))))==0, "failed stakein in")
+            assert(staker.votingPower.cmp(web3.toWei(web3.toBigNumber(t.tranValue).mul(skb.getWeight(t.lockTime))))==0, "failed stakein in")
             assert(staker.amount.cmp(web3.toWei(web3.toBigNumber(t.tranValue)))==0, "failed stakein in")
             log.info(3)
             console.log("typeof staker.StakingEpoch", typeof(staker.stakingEpoch))
@@ -528,6 +492,15 @@ describe('stakein test', ()=> {
             t.status = ts[i][3]
             await stakeInOne(t)
         }
+        let options = {
+            fromBlock: 0,
+            toBlock: 'latest',
+            address:"0x00000000000000000000000000000000000000da",
+            topics: [null]
+        }
+        let filter = web3.eth.filter(options);
+        let events = await pu.promisefy(filter.get,[],filter);
+        console.log(events)
     })
     it("T100 register many.", async ()=>{
         let ts = [
