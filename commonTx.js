@@ -69,7 +69,7 @@ function SignTx() {
 }
 
 let startTime = new Date()
-let txCount = 100
+let txCount = 500
 let nonce = null
 let reorgTimes = 0
 let zeroTimes = 0
