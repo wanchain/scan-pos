@@ -95,7 +95,7 @@ async function main() {
       let txpoolStatus = await pu.promisefy(web3.txpool.status, [], web3.txpool)
       let pendingNumber = Number(txpoolStatus.pending)
       log.log(new Date(), "pending: ", pendingNumber)
-      if (pendingNumber > 80000) {
+      if (pendingNumber > 30000) {
         await pu.sleep(1000)
         continue
       }
