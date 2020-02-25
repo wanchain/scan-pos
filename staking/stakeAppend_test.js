@@ -45,7 +45,7 @@ describe('stakeAppend test', async ()=> {
         let tranValue = 39000
         let payload = skb.coinContract.stakeAppend.getData(newAddr)
         console.log("payload: ", payload)
-        let txhash = await skb.sendStakeTransaction(tranValue, payload)
+        let txhash = await skb.sendStakeTransaction(tranValue, payload,"0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e")
 
         log.info("stakeAppend tx:", txhash)
         let rec = await skb.checkTxResult(txhash)

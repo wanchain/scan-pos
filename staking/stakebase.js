@@ -75,6 +75,36 @@ const cscDefinition = [
         "constant": false,
         "inputs": [
             {
+                "name": "secPk",
+                "type": "bytes"
+            },
+            {
+                "name": "bn256Pk",
+                "type": "bytes"
+            },
+            {
+                "name": "lockEpochs",
+                "type": "uint256"
+            },
+            {
+                "name": "feeRate",
+                "type": "uint256"
+            },
+            {
+                "name": "maxFeeRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeRegister",
+        "outputs": [],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
                 "name": "addr",
                 "type": "address"
             },
@@ -134,6 +164,43 @@ const cscDefinition = [
         "payable": false,
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "posAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "v",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "feeRate",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "lockEpoch",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "maxFeeRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeRegister",
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -233,16 +300,6 @@ const cscDefinition = [
                 "indexed": false,
                 "name": "renewal",
                 "type": "bool"
-            },
-            {
-                "indexed": false,
-                "name": "stakingEpoch",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "name": "lockEpoch",
-                "type": "uint256"
             }
         ],
         "name": "partnerIn",
@@ -424,8 +481,8 @@ async function newAccount() {
 }
 async function Init() {
     //_coinbase = await pu.promisefy(web3.eth.getCoinbase, [], web3.eth)
-    //_coinbase = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
-    _coinbase = "0xbd100cf8286136659a7d63a38a154e28dbf3e0fd"
+    _coinbase = "0x2d0e7c0813a51d3bd1d08246af2a8a7a57d8922e"
+    //_coinbase = "0xbd100cf8286136659a7d63a38a154e28dbf3e0fd"
     console.log("coinbase: ", _coinbase)
 }
 function  coinbase() {

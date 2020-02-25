@@ -1,12 +1,12 @@
 {
   "url": {
     "wan": {
-      "testnet": "http://localhost:8545",
-      "mainnet": "http://localhost:8545"
+      "testnet": "http://192.168.1.179:19001",
+      "mainnet": "http://192.168.1.179:19001"
     },
     "wanipc": {
-      "testnet": "ipc:/home/ubuntu/.wanchain/internal/gwan.ipc",
-      "mainnet": "ipc:/Users/molin/perfTest/node3/gwan.ipc"
+      "testnet": "ipc:/home/lzhang/.wanchain/gwan.ipc",
+      "mainnet": "ipc:/home/lzhang/.wanchain/gwan.ipc"
     },
     "eth": {
       "testnet": "http://localhost:18545",
